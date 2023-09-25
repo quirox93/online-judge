@@ -48,7 +48,7 @@ export default function QuestionForm() {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setValues({ ...values, answer: "Cargando..." });
+    setValues({ ...values, answer: "Cargando...", sources: "" });
     const response = await fetch("/api/answer", {
       method: "POST",
       body: JSON.stringify(values),
