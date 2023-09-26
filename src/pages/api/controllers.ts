@@ -56,7 +56,7 @@ export const generateResponse = async (question: string) => {
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4",
     messages: [
       {
         role: "system",

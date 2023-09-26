@@ -19,8 +19,8 @@ const formSchema = z.object({
     .min(5, {
       message: "Question must be at least 5 characters.",
     })
-    .max(100, {
-      message: "Question must be max 100 characters.",
+    .max(400, {
+      message: "Question must be max 400 characters.",
     }),
 });
 export default function QuestionForm() {
