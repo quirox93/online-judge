@@ -5,11 +5,11 @@ import { getUser } from "@/auth";
 export const POST: APIRoute = async ({ request }) => {
   const user = await getUser(request);
   if (!user)
-    return new Response(JSON.stringify({ error: "Need be login" }), {
+    return new Response(JSON.stringify({ error: "You must be logged." }), {
       status: 400,
     });
   if (user.role !== "premium")
-    return new Response(JSON.stringify({ error: "Need be premium" }), {
+    return new Response(JSON.stringify({ error: "Paid me 🐭" }), {
       status: 400,
     });
   const { question } = await request.json();

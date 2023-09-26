@@ -21,7 +21,7 @@ const getMatchs = async (embedding: number[]) =>
   await supabase.rpc("match_documents", {
     query_embedding: embedding,
     match_threshold: 0.6,
-    match_count: 2,
+    match_count: 5,
   });
 
 export const insertRow = async (arr: string[]) => {
