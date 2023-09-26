@@ -1,10 +1,9 @@
 ---
-import "@/styles/globals.css";
-import QuestionForm from "../components/QuestionForm.jsx";
-import Layout from "../layouts/Layout.astro";
+import QuestionForm from "@/components/QuestionForm";
+import Layout from "@/layouts/Layout.astro";
 ---
 
-<Layout title="AI Judge">
+<Layout title="AI Judge" slug="home">
   <main>
     <QuestionForm client:load />
   </main>

@@ -1,26 +1,26 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import type { Source, Value } from "@/interfaces/interfaces";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
 
 const formSchema = z.object({
   question: z
     .string()
-    .min(2, {
-      message: "Question must be at least 3 characters.",
+    .min(5, {
+      message: "Question must be at least 5 characters.",
     })
-    .max(70, {
-      message: "Question must be max 50 characters.",
+    .max(100, {
+      message: "Question must be max 100 characters.",
     }),
 });
 export default function QuestionForm() {
@@ -30,46 +30,41 @@ export default function QuestionForm() {
       question: "",
     },
   });
-  interface Value {
-    question: string;
-    answer: string;
-    sources: string;
-  }
 
   const [values, setValues] = useState<Value>({
     question: "",
     answer: "",
     sources: "",
   });
-  interface Source {
-    id: string;
-    content: string;
-    similarity: string;
-  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setValues({ ...values, answer: "Cargando...", sources: "" });
-    const response = await fetch("/api/answer", {
-      method: "POST",
-      body: JSON.stringify(values),
-    });
-    const { answer, sources } = await response.json();
+    try {
+      setValues({ ...values, answer: "Cargando...", sources: "" });
+      const response = await fetch("/api/answer", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      const { answer, sources } = data;
+      const map = sources.map((e: Source) => {
+        return (
+          <section key={e.id}>
+            <hr />
+            <article className=" p-3 max-w-md">
+              <p>
+                {e.id}. {e.content}
+              </p>{" "}
+              <p>[similarity:{e.similarity}]</p>
+            </article>
+          </section>
+        );
+      });
 
-    const map = sources.map((e: Source) => {
-      return (
-        <section key={e.id}>
-          <hr />
-          <article className=" p-3 max-w-md">
-            <p>
-              {e.id}. {e.content}
-            </p>{" "}
-            <p>[similarity:{e.similarity}]</p>
-          </article>
-        </section>
-      );
-    });
-
-    setValues({ ...values, sources: map, answer });
+      setValues({ ...values, sources: map, answer });
+    } catch (error: any) {
+      setValues({ ...values, sources: "", answer: error.message });
+    }
   }
   let disabled = false;
   if (values.answer === "Cargando...") disabled = true;
@@ -78,7 +73,7 @@ export default function QuestionForm() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className=" w-full flex justify-center gap-3 m-5"
+          className=" w-full flex justify-center gap-3 my-5"
         >
           <FormField
             control={form.control}
