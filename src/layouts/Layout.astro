@@ -25,7 +25,7 @@ const isLoggedIn = !(user == null);
   </head>
   <body>
     <nav
-      class="relative select-none bg-secondary flex items-stretch w-full mb-10 border-2 border-slate-600 border-t-0"
+      class="relative select-none bg-muted flex items-stretch w-full mb-10 border-2 border-slate-600 border-t-0"
     >
       <div class="flex flex-no-shrink items-stretch h-12">
         <a
@@ -78,5 +78,10 @@ const isLoggedIn = !(user == null);
       }
       parseMagicLink();
     </script>
+    <style is:global>
+      * {
+        scrollbar-gutter: stable;
+      }
+    </style>
   </body>
 </html>

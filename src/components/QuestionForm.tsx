@@ -12,6 +12,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import React from "react";
+import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
   question: z
@@ -48,14 +50,27 @@ export default function QuestionForm() {
       if (data.error) throw new Error(data.error);
       const { answer, sources } = data;
       const map = sources.map((e: Source) => {
+        const lines = e.content
+          .trim()
+          .split("\n")
+          .map((line, i) => {
+            return (
+              <React.Fragment key={i}>
+                {line}
+                <br />
+              </React.Fragment>
+            );
+          });
         return (
           <section key={e.id}>
             <hr />
-            <article className=" p-3 max-w-md">
+            <article className=" p-3 ">
               <p>
-                {e.id}. {e.content}
-              </p>{" "}
-              <p>[similarity:{e.similarity}]</p>
+                #{e.id} {lines}
+              </p>
+              <p>
+                [similarity:{e.similarity}] {e.source}
+              </p>
             </article>
           </section>
         );
@@ -73,27 +88,27 @@ export default function QuestionForm() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className=" w-full flex justify-center gap-3 my-5"
+          className=" w-full flex flex-col items-center justify-center gap-3"
         >
           <FormField
             control={form.control}
             name="question"
             render={({ field }) => (
-              <FormItem className=" max-w-sm w-[50%] flex-col ">
+              <FormItem className="w-[90%]">
                 <FormControl>
-                  <Input placeholder="Ask me..." {...field} />
+                  <Textarea className="bg-secondary" placeholder="Ask me..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button disabled={disabled} className="max-w-sm " type="submit">
+          <Button disabled={disabled} className="w-[90%]" type="submit">
             Submit
           </Button>
         </form>
       </Form>
       <div className="flex text-center align-middle justify-center w-full flex-col items-center  p-10">
-        <p className=" text-xl p-3 max-w-md">{values.answer}</p>
+        <p className=" text-xl p-3 ">{values.answer}</p>
         {values.sources}
       </div>
     </>

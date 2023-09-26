@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { preprocessText } from "./utils.js";
+import type { Match } from "@/interfaces/interfaces.js";
 
 const { SECRET_OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY } = import.meta.env;
 const openai = new OpenAI({
@@ -24,35 +25,13 @@ const getMatchs = async (embedding: number[]) =>
     match_count: 5,
   });
 
-export const insertRow = async (arr: string[]) => {
-  const processed = arr.map((e) => {
-    const res = { content: e, token: preprocessText(e) };
-    return res;
-  });
-  const insertionPromises = [];
-
-  for (const { content, token } of processed) {
-    const embeddingPromise = createVector(token).then((embedding) => {
-      return supabase
-        .from("documents")
-        .insert([{ content, embedding }])
-        .select();
-    });
-    insertionPromises.push(embeddingPromise);
-  }
-  await Promise.all(insertionPromises);
-  const result = { length: processed.length, result: processed };
-  return result;
-};
-interface Match {
-  content: string;
-}
 export const generateResponse = async (question: string) => {
   const embedding = await createVector(preprocessText(question));
   const { data: matchs } = await getMatchs(embedding);
   const context = matchs
-    .map((e: Match, i: number) => `${i + 1}. ${e.content}`)
+    .map((e: Match) => `Rule ${e.id} -> ${e.content}`)
     .join("\n");
+
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
