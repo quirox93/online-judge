@@ -8,6 +8,10 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: "Need be login" }), {
       status: 400,
     });
+  if (user.role !== "premium")
+    return new Response(JSON.stringify({ error: "Need be premium" }), {
+      status: 400,
+    });
   const { question } = await request.json();
 
   const response = await generateResponse(question);
