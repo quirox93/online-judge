@@ -21,8 +21,8 @@ const createVector = async (text: string) => {
 const getMatchs = async (embedding: number[]) =>
   await supabase.rpc("match_documents", {
     query_embedding: embedding,
-    match_threshold: 0.6,
-    match_count: 5,
+    match_threshold: 0.7,
+    match_count: 10,
   });
 
 export const generateResponse = async (question: string) => {
@@ -35,7 +35,7 @@ export const generateResponse = async (question: string) => {
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-3.5-turbo",
     messages: [
       {
         role: "system",
