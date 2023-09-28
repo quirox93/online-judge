@@ -62,15 +62,13 @@ export default function QuestionForm() {
             );
           });
         return (
-          <section key={e.id}>
+          <section className="p-3 bg-secondary rounded-md mb-10 opacity-75 hover:opacity-100" key={e.id}>
             <hr />
-            <article className=" p-3 ">
-              <p>
-                #{e.id} {lines}
-              </p>
-              <p>
-                [similarity:{e.similarity}] {e.source}
-              </p>
+            <article>
+              <h2 className=" text-xl ">
+                #{e.id} {e.title}
+              </h2>
+              <p>{lines}</p>
             </article>
           </section>
         );
@@ -96,7 +94,11 @@ export default function QuestionForm() {
             render={({ field }) => (
               <FormItem className="w-[90%]">
                 <FormControl>
-                  <Textarea className="bg-secondary" placeholder="Ask me..." {...field} />
+                  <Textarea
+                    className="bg-secondary"
+                    placeholder="Ask me..."
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,8 +109,12 @@ export default function QuestionForm() {
           </Button>
         </form>
       </Form>
-      <div className="flex text-center align-middle justify-center w-full flex-col items-center  p-10">
-        <p className=" text-xl p-3 ">{values.answer}</p>
+      <div className="flex justify-center w-full flex-col items-center  p-10">
+        {values.answer && (
+          <p className=" text-xl p-3 bg-secondary rounded-md mb-10">
+            {values.answer}
+          </p>
+        )}
         {values.sources}
       </div>
     </>

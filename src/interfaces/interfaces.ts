@@ -1,9 +1,9 @@
 export interface Source {
   id: string;
   content: string;
-  similarity: string;
-  category: string;
-  source: string;
+  category?: string;
+  source?: string;
+  title: string;
 }
 export interface Value {
   question?: string;

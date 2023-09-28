@@ -1,6 +1,6 @@
 import natural from "natural";
 
-export const preprocessText = (_text: string): string => {
+export const preprocessText = (_text: string): any => {
   const text = _text.toLowerCase().trim();
   const tokenizer = new natural.WordTokenizer();
   const tokens = tokenizer.tokenize(text);
@@ -21,5 +21,5 @@ export const preprocessText = (_text: string): string => {
     natural.PorterStemmer.stem(token)
   );
   const preprocessedText = stemmedTokens?.join(" ");
-  return preprocessedText || "";
+  return { preprocessedText: preprocessedText || "", stemmedTokens };
 };

@@ -1,13 +1,11 @@
 import OpenAI from "openai";
-import { createClient } from "@supabase/supabase-js";
 import { preprocessText } from "./utils.js";
-import type { Match } from "@/interfaces/interfaces.js";
+import { supabase } from "@/auth.js";
 
-const { SECRET_OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY } = import.meta.env;
+const { SECRET_OPENAI_API_KEY } = import.meta.env;
 const openai = new OpenAI({
   apiKey: SECRET_OPENAI_API_KEY,
 });
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const createVector = async (text: string) => {
   const {
@@ -18,20 +16,30 @@ const createVector = async (text: string) => {
   });
   return embedding;
 };
-const getMatchs = async (embedding: number[]) =>
-  await supabase.rpc("match_documents", {
+const getMatchs = async (embedding: number[]) => {
+  const { data } = await supabase.rpc("match_documentsv2", {
     query_embedding: embedding,
-    match_threshold: 0.7,
-    match_count: 10,
+    match_threshold: 0.66,
+    match_count: 50,
   });
+  const uniques = new Set(data.map((e: any) => e.rule_id));
+
+  const { data: main_rules, error } = await supabase
+    .from("main_rules")
+    .select("*")
+    .in("id", [...uniques].slice(0, 5));
+  return main_rules;
+};
 
 export const generateResponse = async (question: string) => {
-  const embedding = await createVector(preprocessText(question));
-  const { data: matchs } = await getMatchs(embedding);
-  const context = matchs
-    .map((e: Match) => `Rule ${e.id} -> ${e.content}`)
-    .join("\n");
+  const { preprocessedText, stemmedTokens } = preprocessText(question);
+  const embedding = await createVector(preprocessedText);
+  const data = await getMatchs(embedding);
 
+  const matchs = data;
+  const context = matchs
+    ?.map((e: any) => `Rule ${e.id} -> ${e.title}: ${e.content}`)
+    .join("\n");
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
@@ -40,15 +48,22 @@ export const generateResponse = async (question: string) => {
       {
         role: "system",
         content: `Eres un asistente que responde dudas sobre reglas del TCG de Digimon Card Game basandote solamente y exclusivamente en las siguientes reglas. No des respuestas a menos que este aclarado en las siguientes reglas:\nReglas=\n 
-          ${context}\nSi tu pregunta no se encuentra cubierta por estas reglas, responderé con una de las siguientes respuestas: "Perdona, no puedo proporcionar una respuesta precisa" o "No estoy preparado para responder eso".`,
+          ${context}\nSi tu pregunta no se encuentra cubierta por estas reglas, responderé con una de las siguientes respuestas: "Perdona, no puedo proporcionar una respuesta precisa" o "No estoy preparado para responder eso.".`,
       },
-      { role: "user", content: question },
+      {
+        role: "user",
+        content:
+          question +
+          "(Importante: no hagas suposiciones a menos que este especificado en tus reglas.)",
+      },
     ],
+    temperature: 0,
   });
   const result = {
     question: question,
     answer: message.content,
     sources: matchs,
   };
+  console.log(result);
   return result;
 };
