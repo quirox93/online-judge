@@ -17,26 +17,26 @@ const createVector = async (text: string) => {
   return embedding;
 };
 const getMatchs = async (embedding: number[]) => {
-  const { data } = await supabase.rpc("match_documentsv2", {
+  const { data: embeddings } = await supabase.rpc("match_documentsv2", {
     query_embedding: embedding,
     match_threshold: 0.66,
     match_count: 50,
   });
-  const uniques = new Set(data.map((e: any) => e.rule_id));
+  const uniques = new Set(embeddings.map((e: any) => e.rule_id));
 
   const { data: main_rules, error } = await supabase
     .from("main_rules")
     .select("*")
     .in("id", [...uniques].slice(0, 10));
-  return main_rules;
+  return { main_rules, embeddings };
 };
 
 export const generateResponse = async (question: string) => {
   const { preprocessedText, stemmedTokens } = preprocessText(question);
   const embedding = await createVector(preprocessedText);
-  const data = await getMatchs(embedding);
+  const { main_rules, embeddings } = await getMatchs(embedding);
 
-  const matchs = data;
+  const matchs = main_rules;
   const context = matchs
     ?.map((e: any) => `Rule ${e.id} -> ${e.title}: ${e.content}`)
     .join("\n");
@@ -63,6 +63,7 @@ export const generateResponse = async (question: string) => {
     question: question,
     answer: message.content,
     sources: matchs,
+    embeddings,
   };
   console.log(result);
   return result;
