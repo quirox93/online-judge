@@ -27,7 +27,7 @@ const getMatchs = async (embedding: number[]) => {
   const { data: main_rules, error } = await supabase
     .from("main_rules")
     .select("*")
-    .in("id", [...uniques].slice(0, 5));
+    .in("id", [...uniques].slice(0, 10));
   return main_rules;
 };
 
