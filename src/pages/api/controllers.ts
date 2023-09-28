@@ -17,13 +17,15 @@ const createVector = async (text: string) => {
   return embedding;
 };
 const getMatchs = async (embedding: number[]) => {
-  const { data: embeddings } = await supabase.rpc("match_documentsv2", {
+  const { data } = await supabase.rpc("match_documentsv2", {
     query_embedding: embedding,
     match_threshold: 0.66,
     match_count: 50,
   });
-  const uniques = new Set(embeddings.map((e: any) => e.rule_id));
-
+  const uniques = new Set(data.map((e: any) => e.rule_id));
+  const embeddings = data.map((e: any) => {
+    return { rule_id: e.rule_id, content: e.content, similarity: e.similarity };
+  });
   const { data: main_rules, error } = await supabase
     .from("main_rules")
     .select("*")
