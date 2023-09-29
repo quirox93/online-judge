@@ -9,6 +9,7 @@ const getURL = () => {
   // Make sure to include `https://` when not localhost.
   url = url.includes("http") ? url : `https://${url}`;
   // Make sure to include a trailing `/`.
+  url = url.charAt(-1) === "/" ? url : `${url}/`;
   console.log(import.meta.env.PUBLIC_VERCEL_URL);
   return url;
 };
@@ -19,7 +20,7 @@ const getURL = () => {
 const { data, error } = await supabase.auth.signInWithOAuth({
   provider: "google",
   options: {
-    redirectTo: getURL() + "/signin",
+    redirectTo: getURL() + "signin",
   },
 });
 const user = await getUser(Astro.request);
