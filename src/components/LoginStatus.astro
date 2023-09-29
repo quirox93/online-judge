@@ -10,7 +10,7 @@ const getURL = () => {
   url = url.includes("http") ? url : `https://${url}`;
   // Make sure to include a trailing `/`.
   url = url.charAt(url.length - 1) === "/" ? url : `${url}/`;
-  console.log(import.meta.env.NEXT_PUBLIC_VERCEL_URL);
+  console.log(import.meta.env.VERCEL);
   return url;
 };
 /*supabase.auth.onAuthStateChange((event, session) => {
