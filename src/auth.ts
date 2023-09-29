@@ -15,7 +15,7 @@ export async function getUser(req: Request) {
   const {
     data: { user },
   } = await supabase.auth.getUser(c.sbat);
-  if (!user || (user.role !== "authenticated" && user.role !== "premium")) {
+  if (!user) {
     return null;
   }
   return user;

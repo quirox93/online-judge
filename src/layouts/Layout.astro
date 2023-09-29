@@ -2,14 +2,13 @@
 import { ViewTransitions } from "astro:transitions";
 import "@/styles/globals.css";
 import LoginStatus from "@/components/LoginStatus.astro";
-import { getUser } from "../auth";
-const user = await getUser(Astro.request);
+
 interface Props {
   title: string;
   slug: string;
 }
+
 const { title, slug } = Astro.props as Props;
-const isLoggedIn = !(user == null);
 ---
 
 <!doctype html>
@@ -46,37 +45,13 @@ const isLoggedIn = !(user == null);
 
       <div class="flex items-stretch flex-no-shrink flex-grow">
         <div class="flex items-stretch justify-end ml-auto">
-          <LoginStatus isLoggedIn={isLoggedIn} />
+          <LoginStatus />
         </div>
       </div>
     </nav>
     <slot />
     <style is:global></style>
-    <script is:inline>
-      async function parseMagicLink() {
-        const vals = window.location.hash
-          .substring(1)
-          .split("&")
-          .map((kv) => kv.split("="));
-        const hashParameters = new Map(vals);
-        if (!hashParameters.get("access_token")) return;
-        const data = await fetch("/api/login", {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          credentials: "same-origin",
-          body: JSON.stringify({
-            access_token: hashParameters.get("access_token"),
-            expires_in: hashParameters.get("expires_in"),
-            refresh_token: hashParameters.get("refresh_token"),
-          }),
-        });
 
-        if (data.ok) {
-          window.location.replace("/");
-        }
-      }
-      parseMagicLink();
-    </script>
     <style is:global>
       * {
         scrollbar-gutter: stable;
