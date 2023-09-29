@@ -30,15 +30,22 @@ const getMatchs = async (embedding: number[]) => {
     .from("main_rules")
     .select("*")
     .in("id", [...uniques].slice(0, 10));
-  return { main_rules, embeddings };
+  const result = main_rules?.map((rule) => {
+    const similarity = embeddings.find(
+      (embeding: any) => embeding.rule_id === rule.id
+    ).similarity;
+    return { ...rule, similarity };
+  });
+  result?.sort((a, b) => b.similarity - a.similarity);
+
+  return result;
 };
 
 export const generateResponse = async (question: string) => {
   const { preprocessedText, stemmedTokens } = preprocessText(question);
   const embedding = await createVector(preprocessedText);
-  const { main_rules, embeddings } = await getMatchs(embedding);
+  const matchs = await getMatchs(embedding);
 
-  const matchs = main_rules;
   const context = matchs
     ?.map((e: any) => `Rule ${e.id} -> ${e.title}: ${e.content}`)
     .join("\n");
@@ -65,8 +72,6 @@ export const generateResponse = async (question: string) => {
     question: question,
     answer: message.content,
     sources: matchs,
-    embeddings,
   };
-  console.log(result);
   return result;
 };

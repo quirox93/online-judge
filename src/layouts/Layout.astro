@@ -59,7 +59,6 @@ const isLoggedIn = !(user == null);
           .split("&")
           .map((kv) => kv.split("="));
         const hashParameters = new Map(vals);
-        console.log(hashParameters);
         if (!hashParameters.get("access_token")) return;
         const data = await fetch("/api/login", {
           method: "POST",

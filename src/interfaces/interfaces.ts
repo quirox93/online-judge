@@ -4,6 +4,7 @@ export interface Source {
   category?: string;
   source?: string;
   title: string;
+  similarity: number;
 }
 export interface Value {
   question?: string;

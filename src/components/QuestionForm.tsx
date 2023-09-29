@@ -48,8 +48,10 @@ export default function QuestionForm() {
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
+
       const { answer, sources } = data;
       const map = sources.map((e: Source) => {
+        const similarity = Math.ceil(e.similarity * 100);
         const lines = e.content
           .trim()
           .split("\n")
@@ -62,11 +64,14 @@ export default function QuestionForm() {
             );
           });
         return (
-          <section className="p-3 bg-secondary rounded-md mb-10 opacity-75 hover:opacity-100" key={e.id}>
+          <section
+            className="p-3 bg-secondary rounded-md mb-10 opacity-75 hover:opacity-100"
+            key={e.id}
+          >
             <hr />
             <article>
               <h2 className=" text-xl ">
-                #{e.id} {e.title}
+                #{e.id} [similarity: {similarity}%] {e.title}
               </h2>
               <p>{lines}</p>
             </article>
