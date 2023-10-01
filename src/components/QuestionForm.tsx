@@ -1,50 +1,25 @@
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { Source, Value } from "@/interfaces/interfaces";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import React from "react";
 import { Textarea } from "./ui/textarea";
+import React from "react";
+import SearchInput from "./SearchInput/SearchInput";
 
-const formSchema = z.object({
-  question: z
-    .string()
-    .min(5, {
-      message: "Question must be at least 5 characters.",
-    })
-    .max(400, {
-      message: "Question must be max 400 characters.",
-    }),
-});
 export default function QuestionForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      question: "",
-    },
-  });
-
   const [values, setValues] = useState<Value>({
     question: "",
     answer: "",
     sources: "",
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(event: any) {
+    event.preventDefault();
+    const question = "Que es rush";
     try {
       setValues({ ...values, answer: "Cargando...", sources: "" });
       const response = await fetch("/api/answer", {
         method: "POST",
-        body: JSON.stringify(values),
+        body: JSON.stringify(question),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -84,36 +59,33 @@ export default function QuestionForm() {
       setValues({ ...values, sources: "", answer: error.message });
     }
   }
+
+  const onTextChange = (e: any) => {
+    const { value } = e.target;
+    setValues({ ...values, question: value });
+  };
+
   let disabled = false;
   if (values.answer === "Cargando...") disabled = true;
+
+  const handleSelection = (card: any) => {
+    console.log(card);
+  };
+
   return (
     <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className=" w-full flex flex-col items-center justify-center gap-3"
-        >
-          <FormField
-            control={form.control}
-            name="question"
-            render={({ field }) => (
-              <FormItem className="w-[90%]">
-                <FormControl>
-                  <Textarea
-                    className="bg-secondary"
-                    placeholder="Ask me..."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button disabled={disabled} className="w-[90%]" type="submit">
-            Submit
-          </Button>
-        </form>
-      </Form>
+      <SearchInput handleSelection={handleSelection} />
+      <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
+        <Textarea
+          onChange={onTextChange}
+          className="bg-secondary w-[90%] mb-5"
+          placeholder="Ask me..."
+          value={values.question}
+        />
+        <Button disabled={disabled} className="w-[90%]" type="submit">
+          Submit
+        </Button>
+      </form>
       <div className="flex justify-center w-full flex-col items-center  p-10">
         {values.answer && (
           <p className=" text-xl p-3 bg-secondary rounded-md mb-10">

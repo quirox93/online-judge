@@ -3,7 +3,7 @@ import { generateResponse } from "./controllers";
 import { getUser } from "@/auth";
 
 export const POST: APIRoute = async ({ request }) => {
-  //return new Response(JSON.stringify(test));
+  return new Response(JSON.stringify(test));
   const user = await getUser(request);
   if (!user)
     return new Response(JSON.stringify({ error: "You must be logged." }), {

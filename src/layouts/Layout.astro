@@ -35,6 +35,13 @@ const { title, slug } = Astro.props as Props;
           ]}>Home</a
         >
         <a
+          href="/rulings"
+          class:list={[
+            "flex-no-grow flex-no-shrink relative py-2 px-4 leading-normal text-foreground no-underline flex items-center hover:bg-background",
+            { "bg-background": slug === "rulings" },
+          ]}>Rulings</a
+        >
+        <a
           href="/about"
           class:list={[
             "flex-no-grow flex-no-shrink relative py-2 px-4 leading-normal text-foreground no-underline flex items-center hover:bg-background",
