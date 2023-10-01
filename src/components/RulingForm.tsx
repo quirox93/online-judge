@@ -1,5 +1,4 @@
 import { useState } from "react";
-import SearchInput from "./SearchInput/SearchInput.jsx";
 import { Input } from "./ui/input.js";
 
 export default function RulingForm({ data }: any) {
