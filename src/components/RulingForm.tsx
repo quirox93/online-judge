@@ -31,19 +31,21 @@ export default function RulingForm({ data }: any) {
           <label>
             {card?.card_name} ({card?.card_number})
           </label>
-          <img className="w-[30%]" src={card?.image_url}></img>
+          <img className="w-[30%] " src={card?.image_url}></img>
         </article>
       ) : (
         ""
       )}
-      <datalist id="data">
-        {data.map((e: any, i: number) => (
-          <option
-            key={e.card_number + "*" + i}
-            value={e.card_name + " " + e.card_number}
-          />
-        ))}
-      </datalist>
+      {inputValue.length > 2 && (
+        <datalist id="data">
+          {data.map((e: any, i: number) => (
+            <option
+              key={e.card_number + "*" + i}
+              value={e.card_name + " " + e.card_number}
+            />
+          ))}
+        </datalist>
+      )}
     </>
   );
 }
