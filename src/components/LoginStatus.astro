@@ -17,6 +17,7 @@ const { data, error } = await supabase.auth.signInWithOAuth({
 });
 const user = await getUser(Astro.request);
 const isLoggedIn = !(user == null);
+export const prerender = false;
 ---
 
 {
