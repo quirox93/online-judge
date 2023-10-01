@@ -18,7 +18,7 @@ const dataArray = await Promise.all(dataPromises);
 const data = dataArray.flatMap((obj) => obj.success.cards);
 ---
 
-<Layout client:load title="AI Judge" slug="rulings">
+<Layout title="AI Judge" slug="rulings">
   <main>
     <RulingForm data={data} client:load />
   </main>
