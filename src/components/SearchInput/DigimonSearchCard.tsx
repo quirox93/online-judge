@@ -1,18 +1,16 @@
-import { useState } from "react";
-
 export default function DigimonSearchCard({
   handleSelection,
   card,
   setInputValue,
+  setSearchResult,
 }: any) {
-  const [hidden, setHidden] = useState("");
   const handleClick = () => {
     handleSelection(card);
-    setHidden("hidden");
     setInputValue("");
+    setSearchResult([]);
   };
   return (
-    <li className={`flex ${hidden}`} onClick={handleClick}>
+    <li onClick={handleClick}>
       {card.card_name} ({card.card_number})
     </li>
   );

@@ -60,8 +60,28 @@ const { title, slug } = Astro.props as Props;
     <style is:global></style>
 
     <style is:global>
-      * {
-        scrollbar-gutter: stable;
+      body {
+        --sb-track-color: #232e33;
+        --sb-thumb-color: #6baf8d;
+        --sb-size: 10px;
+        overflow-y: scroll;
+        background: red;
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+        scrollbar-width: none;
+      }
+
+      body::-webkit-scrollbar {
+        width: var(--sb-size);
+      }
+
+      body::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+      }
+
+      body::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color);
+        border-radius: 10px;
       }
     </style>
   </body>

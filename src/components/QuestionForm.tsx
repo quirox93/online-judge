@@ -5,7 +5,7 @@ import { Textarea } from "./ui/textarea";
 import React from "react";
 import SearchInput from "./SearchInput/SearchInput";
 
-export default function QuestionForm() {
+export default function QuestionForm(data: any) {
   const [values, setValues] = useState<Value>({
     question: "",
     answer: "",
@@ -74,7 +74,7 @@ export default function QuestionForm() {
 
   return (
     <>
-      <SearchInput handleSelection={handleSelection} />
+      <SearchInput data={data.data} handleSelection={handleSelection} />
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}

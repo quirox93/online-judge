@@ -1,7 +1,7 @@
 import { Input } from "../ui/input";
 import DigimonSearchCard from "./DigimonSearchCard";
 import useSearch from "./useSearch";
-export default function SearchInput({ handleSelection }: any) {
+export default function SearchInput({ handleSelection, data }: any) {
   const {
     inputValue,
     setInputValue,
@@ -10,12 +10,14 @@ export default function SearchInput({ handleSelection }: any) {
     searchResult,
     hidden,
     onInputChange,
-  } = useSearch();
+    setSearchResult,
+  } = useSearch(data);
 
   const mapResult = searchResult.map((card: any) => {
     return (
       <DigimonSearchCard
         setInputValue={setInputValue}
+        setSearchResult={setSearchResult}
         card={card}
         handleSelection={handleSelection}
         key={card.id}
@@ -34,7 +36,7 @@ export default function SearchInput({ handleSelection }: any) {
           value={inputValue}
           type="text"
         />
-        <div className={`relative  ${hidden} hover:block`}>
+        <div className={`relative  ${hidden} hover:block group`}>
           <ol className="bg-secondary absolute w-[100%] p-2  border-white border-2 justify-center">
             {mapResult}
           </ol>
