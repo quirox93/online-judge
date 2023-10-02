@@ -4,6 +4,7 @@ import type { Source, Value } from "@/interfaces/interfaces";
 import { Textarea } from "./ui/textarea";
 import React from "react";
 import { Input } from "./ui/input";
+import CardSearch from "./CardSearch";
 
 export default function QuestionForm({ data }: any) {
   const [values, setValues] = useState<Value>({
@@ -11,23 +12,17 @@ export default function QuestionForm({ data }: any) {
     answer: "",
     sources: "",
   });
-  const [inputValue, setInputValue] = useState("");
-  const handleInput = (e: any) => {
-    const { value } = e.target;
-    setInputValue(value);
-    const cardData = data.find(
-      (e: any) => e.card_name + " " + e.card_number === value
-    );
-    console.log(cardData);
-  };
+
   async function onSubmit(event: any) {
     event.preventDefault();
     const question = "Que es rush";
+    const token = localStorage.getItem("supabase.auth.token");
+
     try {
       setValues({ ...values, answer: "Cargando...", sources: "" });
       const response = await fetch("/api/answer", {
         method: "POST",
-        body: JSON.stringify(question),
+        body: JSON.stringify({ question, token }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -76,33 +71,13 @@ export default function QuestionForm({ data }: any) {
   let disabled = false;
   if (values.answer === "Cargando...") disabled = true;
 
-  const handleSelection = (card: any) => {
+  const cb = (card: any) => {
     console.log(card);
   };
 
   return (
     <>
-      <div className="w-[100%] flex gap-4 items-center justify-center mb-5 ">
-        <div className="flex flex-col w-[70%]">
-          <Input
-            placeholder="Search a card..."
-            type="text"
-            list="data"
-            onChange={handleInput}
-            value={inputValue}
-          />
-        </div>
-        {inputValue.length > 2 && (
-          <datalist id="data">
-            {data.map((e: any, i: number) => (
-              <option
-                key={e.card_number + "*" + i}
-                value={e.card_name + " " + e.card_number}
-              />
-            ))}
-          </datalist>
-        )}
-      </div>
+      <CardSearch cb={cb} data={data} />
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}

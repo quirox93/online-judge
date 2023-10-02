@@ -1,10 +1,16 @@
 import type { APIRoute } from "astro";
 import { generateResponse } from "./controllers";
-import { getUser } from "@/auth";
+import { getUser, supabase } from "@/auth";
 
 export const POST: APIRoute = async ({ request }) => {
-  return new Response(JSON.stringify(test));
-  const user = await getUser(request);
+  const { token } = await request.json();
+  if (!token)
+    return new Response(JSON.stringify({ error: "You must be logged." }), {
+      status: 400,
+    });
+
+  const { access_token } = JSON.parse(token);
+  const user = await getUser(access_token);
   if (!user)
     return new Response(JSON.stringify({ error: "You must be logged." }), {
       status: 400,
@@ -13,6 +19,9 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: "Paid me 🐭" }), {
       status: 400,
     });
+
+  return new Response(JSON.stringify(test));
+
   const { question } = await request.json();
 
   const response = await generateResponse(question);

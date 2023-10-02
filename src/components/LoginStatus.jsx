@@ -14,9 +14,9 @@ export default function LoginStatus() {
   useEffect(() => {
     const getData = async () => {
       const tokenData = localStorage.getItem("supabase.auth.token");
-      if (!tokenData) return;
-      const { currentSession } = JSON.parse(tokenData);
-      var expiresAt = parseInt(currentSession.expires_at, 10);
+      if (!tokenData) return setSession(false);
+      const { expires_at } = JSON.parse(tokenData);
+      var expiresAt = parseInt(expires_at, 10);
       var ahora = Math.floor(Date.now() / 1000);
       setSession(expiresAt > ahora);
     };
@@ -24,7 +24,7 @@ export default function LoginStatus() {
     getData();
   }, []);
   const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: getURL() + "signin",

@@ -49,6 +49,12 @@ export const generateResponse = async (question: string) => {
   const context = matchs
     ?.map((e: any) => `Rule ${e.id} -> ${e.title}: ${e.content}`)
     .join("\n");
+
+    return {
+      question: question,
+      answer: context,
+      sources: matchs,
+    };
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
