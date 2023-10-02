@@ -10,7 +10,6 @@ const getURL = () => {
 };
 
 export default function LoginStatus() {
-  const [url, setUrl] = useState();
   const [session, setSession] = useState(false);
   useEffect(() => {
     const getData = async () => {
@@ -36,11 +35,12 @@ export default function LoginStatus() {
   return (
     <>
       {session ? (
-        <LogOut client:load />
+        <>
+          <LogOut client:load />
+        </>
       ) : (
         <a
           onClick={handleLogin}
-          href={url}
           className="flex-no-grow flex-no-shrink relative py-2 px-4 leading-normal text-foreground no-underline flex items-center hover:bg-background"
         >
           Login
