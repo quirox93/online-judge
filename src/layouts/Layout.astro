@@ -1,7 +1,7 @@
 ---
 import { ViewTransitions } from "astro:transitions";
 import "@/styles/globals.css";
-import LoginStatus from "@/components/LoginStatus.astro";
+import LoginStatus from "@/components/LoginStatus.jsx";
 
 interface Props {
   title: string;
@@ -52,7 +52,7 @@ const { title, slug } = Astro.props as Props;
 
       <div class="flex items-stretch flex-no-shrink flex-grow">
         <div class="flex items-stretch justify-end ml-auto">
-          <LoginStatus />
+          <LoginStatus client:load />
         </div>
       </div>
     </nav>
