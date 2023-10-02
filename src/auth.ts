@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import cookie from "cookie";
 
 export const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_KEY
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_KEY
 );
 
 export async function getUser(req: Request) {

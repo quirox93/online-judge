@@ -10,7 +10,12 @@ async function parseMagicLink(req) {
         .split("&")
         .map((kv) => kv.split("="));
     const hashParameters = new Map(vals);
-
+    const token = JSON.stringify({
+        currentSession: Object.fromEntries(hashParameters),
+    });
+    localStorage.setItem("supabase.auth.token", token);
+    console.log(vals);
+    return;
     const data = await fetch("/api/login", {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
@@ -25,6 +30,6 @@ async function parseMagicLink(req) {
     if (data.ok) {
         window.location.replace("/");
     }
-  }
-  parseMagicLink();
+}
+parseMagicLink();
 </script>

@@ -1,5 +1,5 @@
 const handleClick = async () => {
-  await fetch("/api/logout");
+  localStorage.removeItem("supabase.auth.token");
   window.location.reload();
 };
 
