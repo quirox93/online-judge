@@ -3,7 +3,7 @@ import { generateResponse } from "./controllers";
 import { getUser, supabase } from "@/auth";
 
 export const POST: APIRoute = async ({ request }) => {
-  const { token } = await request.json();
+  const { token, question } = await request.json();
   if (!token)
     return new Response(JSON.stringify({ error: "You must be logged." }), {
       status: 400,
@@ -20,9 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
       status: 400,
     });
 
-  return new Response(JSON.stringify(test));
-
-  const { question } = await request.json();
+  //return new Response(JSON.stringify(test));
 
   const response = await generateResponse(question);
 

@@ -3,10 +3,9 @@ import { useState } from "react";
 import type { Source, Value } from "@/interfaces/interfaces";
 import { Textarea } from "./ui/textarea";
 import React from "react";
-import { Input } from "./ui/input";
 import CardSearch from "./CardSearch";
 
-export default function QuestionForm({ data }: any) {
+export default function QuestionForm() {
   const [values, setValues] = useState<Value>({
     question: "",
     answer: "",
@@ -15,14 +14,14 @@ export default function QuestionForm({ data }: any) {
 
   async function onSubmit(event: any) {
     event.preventDefault();
-    const question = "Que es rush";
+
     const token = localStorage.getItem("supabase.auth.token");
 
     try {
       setValues({ ...values, answer: "Cargando...", sources: "" });
       const response = await fetch("/api/answer", {
         method: "POST",
-        body: JSON.stringify({ question, token }),
+        body: JSON.stringify({ question: values.question, token }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -77,7 +76,7 @@ export default function QuestionForm({ data }: any) {
 
   return (
     <>
-      <CardSearch cb={cb} data={data} />
+      <CardSearch cb={cb} />
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}
