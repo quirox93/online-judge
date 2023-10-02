@@ -1,28 +1,21 @@
 ---
 import QuestionForm from "@/components/QuestionForm";
 import Layout from "@/layouts/Layout.astro";
+export const prerender = true;
 
+const URLs = [
+  "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
+  "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=1000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
+  "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=2000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
+];
 
-// const URLs = [
-//   "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
-//   "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=1000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
-//   "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=2000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
-// ];
+// Usamos Promise.all para realizar las tres llamadas en paralelo
+const responses = await Promise.all(URLs.map((url) => fetch(url)));
 
-// // Usamos Promise.all para realizar las tres llamadas en paralelo
-// const responses = await Promise.all(URLs.map((url) => fetch(url)));
-
-// // Procesamos los resultados de cada llamada
-// const dataPromises = responses.map((response) => response.json());
-// const dataArray = await Promise.all(dataPromises);
-
-// const data = dataArray.reduce(
-//   (acc, currentData) => acc.concat(currentData.success.cards),
-//   []
-// );
-// console.log(data);
-
-const data = {};
+// Procesamos los resultados de cada llamada
+const dataPromises = responses.map((response) => response.json());
+const dataArray = await Promise.all(dataPromises);
+const data = dataArray.flatMap((obj) => obj.success.cards);
 ---
 
 <Layout title="AI Judge" slug="home">

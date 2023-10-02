@@ -39,12 +39,12 @@ export default function LoginStatus() {
           <LogOut client:load />
         </>
       ) : (
-        <a
+        <button
           onClick={handleLogin}
           className="flex-no-grow flex-no-shrink relative py-2 px-4 leading-normal text-foreground no-underline flex items-center hover:bg-background"
         >
           Login
-        </a>
+        </button>
       )}
     </>
   );

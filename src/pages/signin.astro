@@ -14,22 +14,8 @@ async function parseMagicLink(req) {
         currentSession: Object.fromEntries(hashParameters),
     });
     localStorage.setItem("supabase.auth.token", token);
-    console.log(vals);
-    return;
-    const data = await fetch("/api/login", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        credentials: "same-origin",
-        body: JSON.stringify({
-            access_token: hashParameters.get("access_token"),
-            expires_in: hashParameters.get("expires_in"),
-            refresh_token: hashParameters.get("refresh_token"),
-        }),
-    });
 
-    if (data.ok) {
-        window.location.replace("/");
-    }
+    window.location.replace("/");
 }
 parseMagicLink();
 </script>
