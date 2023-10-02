@@ -3,15 +3,23 @@ import { useState } from "react";
 import type { Source, Value } from "@/interfaces/interfaces";
 import { Textarea } from "./ui/textarea";
 import React from "react";
-import SearchInput from "./SearchInput/SearchInput";
+import { Input } from "./ui/input";
 
-export default function QuestionForm(data: any) {
+export default function QuestionForm({ data }: any) {
   const [values, setValues] = useState<Value>({
     question: "",
     answer: "",
     sources: "",
   });
-
+  const [inputValue, setInputValue] = useState("");
+  const handleInput = (e: any) => {
+    const { value } = e.target;
+    setInputValue(value);
+    const cardData = data.find(
+      (e: any) => e.card_name + " " + e.card_number === value
+    );
+    console.log(cardData);
+  };
   async function onSubmit(event: any) {
     event.preventDefault();
     const question = "Que es rush";
@@ -74,7 +82,27 @@ export default function QuestionForm(data: any) {
 
   return (
     <>
-      <SearchInput data={data.data} handleSelection={handleSelection} />
+      <div className="w-[100%] flex gap-4 items-center justify-center mb-5 ">
+        <div className="flex flex-col w-[70%]">
+          <Input
+            placeholder="Search a card..."
+            type="text"
+            list="data"
+            onChange={handleInput}
+            value={inputValue}
+          />
+        </div>
+        {inputValue.length > 2 && (
+          <datalist id="data">
+            {data.map((e: any, i: number) => (
+              <option
+                key={e.card_number + "*" + i}
+                value={e.card_name + " " + e.card_number}
+              />
+            ))}
+          </datalist>
+        )}
+      </div>
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}
