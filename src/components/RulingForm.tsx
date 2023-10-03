@@ -22,7 +22,7 @@ export default function RulingForm() {
         body: JSON.stringify({ text: JSON.stringify(ruleData), token }),
       });
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      if (data.error) return alert(data.error);
 
       const { translation } = data;
       console.log(translation);

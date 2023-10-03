@@ -84,7 +84,7 @@ export const translateText = async (text: string) => {
     messages: [
       {
         role: "system",
-        content: `Eres un traductor del japones al inglés enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas. Usa otro tipo de comillas para los datos dentro de las propiedades del JSON".`,
+        content: `Eres un traductor del japones al inglés enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas. Usa otro tipo de comillas para los datos dentro de las propiedades del JSON. Ten en cuenta el siguiente glosario para traducir: [On Play, When Digivolving, When Attacking, End of Attack, At the end of the battle, On Deletion, Your Turn, Opponent’s Turn, All Turns, Start of Your Turn, Suspend, Unsuspend, Digivolution Card, Delete, Security Digimon, Trash]`,
       },
       {
         role: "user",

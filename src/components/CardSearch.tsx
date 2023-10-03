@@ -9,6 +9,7 @@ const loadData = async () => {
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=1000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=2000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
+    "https://api.bandai-tcg-plus.com/api/user/card/list?infinite=false&reverse_card=0&playable_regulation%5B%5D=12&default_regulation=12&offset=0&game_title_id=6&limit=1000",
   ];
 
   // Usamos Promise.all para realizar las tres llamadas en paralelo
