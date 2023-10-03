@@ -73,10 +73,9 @@ export default function QuestionForm() {
   const cb = (card: any) => {
     console.log(card);
   };
-
+  //<CardSearch cb={cb} />
   return (
     <>
-      <CardSearch cb={cb} />
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}
