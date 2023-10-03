@@ -1,11 +1,10 @@
 ---
 import RulingForm from "@/components/RulingForm";
 import Layout from "@/layouts/Layout.astro";
-export const prerender = true;
 ---
 
 <Layout title="AI Judge" slug="rulings">
   <main>
-    <RulingForm transition:persist client:load />
+    <RulingForm client:only />
   </main>
 </Layout>

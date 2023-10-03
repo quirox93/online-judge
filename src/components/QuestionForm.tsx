@@ -91,7 +91,17 @@ export default function QuestionForm() {
       <div className="flex justify-center w-full flex-col items-center  p-10">
         {values.answer && (
           <p className=" text-xl p-3 bg-secondary rounded-md mb-10">
-            {values.answer}
+            {values.answer
+              .trim()
+              .split("\n")
+              .map((line, i) => {
+                return (
+                  <React.Fragment key={i}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                );
+              })}
           </p>
         )}
         {values.sources}

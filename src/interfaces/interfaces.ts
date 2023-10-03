@@ -16,3 +16,10 @@ export interface Match {
   content: string;
   id: number;
 }
+
+export interface OficialData {
+  id: number;
+  card_number: string;
+  card_name: string;
+  image_url: string;
+}

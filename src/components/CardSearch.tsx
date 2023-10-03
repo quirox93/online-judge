@@ -3,6 +3,7 @@ import { Input } from "./ui/input";
 import { allCards } from "@/store/cardsStore.js";
 import { useStore } from "@nanostores/react";
 import { SkeletonSearch } from "./ui/skeletonSearch";
+import type { OficialData } from "@/interfaces/interfaces";
 const loadData = async () => {
   const URLs = [
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
@@ -16,9 +17,18 @@ const loadData = async () => {
   // Procesamos los resultados de cada llamada
   const dataPromises = responses.map((response) => response.json());
   const dataArray = await Promise.all(dataPromises);
-  const data = dataArray.flatMap((obj) => obj.success.cards) as any;
-  allCards.set(data);
-  return data;
+  const data = dataArray.flatMap((obj) => obj.success.cards) as
+    | OficialData[]
+    | any;
+  const uniqueNumbers = new Set(
+    data.map((cardData: OficialData) => cardData.card_number)
+  );
+  const filterData = [...uniqueNumbers].map((cardNumber) => {
+    const find = data.find((d: OficialData) => d.card_number === cardNumber);
+    return find;
+  });
+  allCards.set(filterData);
+  return filterData;
 };
 
 export default function CardSearch({ cb }: any) {
@@ -33,7 +43,7 @@ export default function CardSearch({ cb }: any) {
     const { value } = e.target;
     setInputValue(value);
     const cardData = data.find(
-      (e: any) => e.card_name + " " + e.card_number === value
+      (c) => c.card_name + " " + c.card_number == value
     );
     cb(cardData);
   };
@@ -53,7 +63,7 @@ export default function CardSearch({ cb }: any) {
         )}
         {inputValue.length > 2 && (
           <datalist id="data">
-            {data.map((e: any, i: number) => (
+            {data.map((e, i: number) => (
               <option
                 key={e.card_number + "*" + i}
                 value={e.card_name + " " + e.card_number}
