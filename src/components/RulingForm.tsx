@@ -6,22 +6,35 @@ import { getCardRulingJp } from "@/utils/scrappers.js";
 export default function RulingForm() {
   const [card, setCard] = useState(null as OficialData | null);
   const [rulings, setRulings] = useState([] as any);
+  const [translation, setTranslation] = useState("");
   const cb = (cardData: any) => {
     if (cardData) setCard(cardData);
   };
 
   useEffect(() => {
     const loadRuling = async () => {
-      const data = await getCardRulingJp(card?.card_number);
-      setRulings(data);
+      const ruleData = await getCardRulingJp(card?.card_number);
+      setRulings(ruleData);
+      const token = localStorage.getItem("supabase.auth.token");
+
+      const response = await fetch("/api/translator", {
+        method: "POST",
+        body: JSON.stringify({ text: JSON.stringify(ruleData), token }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      const { translation } = data;
+      console.log(translation);
+      setRulings(JSON.parse(translation));
     };
     if (card) loadRuling();
   }, [card]);
 
   const rulingsMap = rulings.map((r: any, i: number) => (
     <span key={"r" + i}>
-      <p>${r.question}</p>
-      <p>${r.answer}</p>
+      <p>Q: {r.question}</p>
+      <p>A: {r.answer}</p>
       <hr></hr>
     </span>
   ));
@@ -35,6 +48,7 @@ export default function RulingForm() {
           </label>
           <img className="w-[30%] " src={card?.image_url}></img>
           <div className="flex flex-col gap-4">{rulingsMap}</div>
+          <div>{translation}</div>
         </article>
       )}
     </>
