@@ -14,19 +14,6 @@ export default function RulingForm() {
     const loadRuling = async () => {
       const ruleData = await getCardRulingJp(card?.card_number);
       setRulings(ruleData);
-      /*
-      const token = localStorage.getItem("supabase.auth.token");
-
-      const response = await fetch("/api/translator", {
-        method: "POST",
-        body: JSON.stringify({ text: JSON.stringify(ruleData), token }),
-      });
-      const data = await response.json();
-      if (data.error) return alert(data.error);
-
-      const { translation } = data;
-      console.log(translation);
-      setRulings(JSON.parse(translation));*/
 
       const responses = await Promise.all(
         ruleData.map((rule) =>
@@ -39,29 +26,50 @@ export default function RulingForm() {
 
       const dataPromises = responses.map((response) => response.json());
       const dataArray = await Promise.all(dataPromises);
-      console.log(dataArray);
       setRulings(dataArray);
+
+      const token = localStorage.getItem("supabase.auth.token");
+      if (!token) return;
+      const response = await fetch("/api/translator", {
+        method: "POST",
+        body: JSON.stringify({ text: JSON.stringify(ruleData), token }),
+      });
+      const data = await response.json();
+      //if (data.error) return alert(data.error);
+      if (!data.error) {
+        const { translation } = data;
+        setRulings(JSON.parse(translation));
+      }
     };
     if (card) loadRuling();
   }, [card]);
 
   const rulingsMap = rulings.map((r: any, i: number) => (
-    <span key={"r" + i}>
-      <p>Q: {r.question}</p>
-      <p>A: {r.answer}</p>
-      <hr></hr>
+    <span className="p-4 bg-slate-600 rounded-sm m-4" key={"r" + i}>
+      <p>
+        <span className={"text-green-500 font-bold "}>Q:</span> {r.question}
+      </p>
+      <p>
+        <span className={"text-red-500 font-bold "}>A:</span> {r.answer}
+      </p>
     </span>
   ));
+  const gridStyles = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(20rem, 1fr))",
+    /* Otros estilos aquí */
+  };
+
   return (
     <>
       <CardSearch cb={cb} />
       {card && (
-        <article className="flex flex-col gap-4 items-center justify-center">
-          <label>
-            {card?.card_name} ({card?.card_number})
-          </label>
-          <img className="w-[30%] " src={card?.image_url}></img>
-          <div className="flex flex-col gap-4">{rulingsMap}</div>
+        <article
+          style={gridStyles}
+          className="w-[100%] gap-4 justify-items-center transition-all"
+        >
+          <img className="w-[100%] p-4 max-w-xs  " src={card?.image_url}></img>
+          <div className="flex flex-col gap-8">{rulingsMap}</div>
         </article>
       )}
     </>
