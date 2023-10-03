@@ -6,7 +6,6 @@ import { getCardRulingJp } from "@/utils/scrappers.js";
 export default function RulingForm() {
   const [card, setCard] = useState(null as OficialData | null);
   const [rulings, setRulings] = useState([] as any);
-  const [translation, setTranslation] = useState("");
   const cb = (cardData: any) => {
     if (cardData) setCard(cardData);
   };
@@ -15,6 +14,7 @@ export default function RulingForm() {
     const loadRuling = async () => {
       const ruleData = await getCardRulingJp(card?.card_number);
       setRulings(ruleData);
+      /*
       const token = localStorage.getItem("supabase.auth.token");
 
       const response = await fetch("/api/translator", {
@@ -26,7 +26,21 @@ export default function RulingForm() {
 
       const { translation } = data;
       console.log(translation);
-      setRulings(JSON.parse(translation));
+      setRulings(JSON.parse(translation));*/
+
+      const responses = await Promise.all(
+        ruleData.map((rule) =>
+          fetch("/api/gtranslator", {
+            method: "POST",
+            body: JSON.stringify({ text: rule }),
+          })
+        )
+      );
+
+      const dataPromises = responses.map((response) => response.json());
+      const dataArray = await Promise.all(dataPromises);
+      console.log(dataArray);
+      setRulings(dataArray);
     };
     if (card) loadRuling();
   }, [card]);
@@ -48,7 +62,6 @@ export default function RulingForm() {
           </label>
           <img className="w-[30%] " src={card?.image_url}></img>
           <div className="flex flex-col gap-4">{rulingsMap}</div>
-          <div>{translation}</div>
         </article>
       )}
     </>
