@@ -29,7 +29,7 @@ export default function RulingForm() {
       const dataArray = await Promise.all(dataPromises);
       setRulings(dataArray);
 
-      const token = localStorage.getItem("supabase.auth.token");
+      /*const token = localStorage.getItem("supabase.auth.token");
       if (!token) return;
       const response = await fetch("/api/translator", {
         method: "POST",
@@ -40,7 +40,7 @@ export default function RulingForm() {
       if (!data.error) {
         const { translation } = data;
         setRulings(JSON.parse(translation));
-      }
+      }*/
     };
     if (card) loadRuling();
   }, [card]);
@@ -71,7 +71,9 @@ export default function RulingForm() {
           className={`w-[100%] gap-4 justify-items-center`}
         >
           <img className="w-[100%] p-4 max-w-xs  " src={card?.image_url}></img>
-          <div className="flex flex-col p-4 gap-8">{ruleMessage || rulingsMap}</div>
+          <div className="flex flex-col p-4 gap-8">
+            {ruleMessage || rulingsMap}
+          </div>
         </article>
       )}
     </>
