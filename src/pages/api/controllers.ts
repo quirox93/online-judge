@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { preprocessText } from "./utils.js";
 import { supabase } from "@/auth.js";
+import type { OficialData } from "@/interfaces/interfaces.js";
 
 const { SECRET_OPENAI_API_KEY } = import.meta.env;
 const openai = new OpenAI({
@@ -41,11 +42,14 @@ const getMatchs = async (embedding: number[]) => {
   return result;
 };
 
-export const generateResponse = async (question: string) => {
+export const generateResponse = async (
+  question: string,
+  cardRef: OficialData[]
+) => {
   const { preprocessedText, stemmedTokens } = preprocessText(question);
   const embedding = await createVector(preprocessedText);
   const matchs = await getMatchs(embedding);
-
+  const references = await getCardsData(cardRef);
   const context = matchs
     ?.map((e: any) => `Rule ${e.id} -> ${e.title}: ${e.content}`)
     .join("\n");
@@ -62,9 +66,7 @@ export const generateResponse = async (question: string) => {
       },
       {
         role: "user",
-        content:
-          question +
-          "(Importante: no hagas suposiciones a menos que este especificado en tus reglas.)",
+        content: `${question}\n${references}(Importante: no hagas suposiciones a menos que este especificado en tus reglas.)`,
       },
     ],
     temperature: 0,
@@ -74,13 +76,31 @@ export const generateResponse = async (question: string) => {
     answer: message.content,
     sources: matchs,
   };
+  console.log(context);
   return result;
+};
+
+const getCardsData = async (arr: OficialData[]) => {
+  if (!arr.length) return "";
+  const responses = await Promise.all(
+    arr.map((card) =>
+      fetch(
+        `https://api.bandai-tcg-plus.com/api/user/card/${card.id}?app_version=9.9.9`
+      )
+    )
+  );
+
+  // Procesamos los resultados de cada dllamada
+  const dataPromises = responses.map((response) => response.json());
+  const dataArray = await Promise.all(dataPromises);
+  console.log(dataArray);
+  return "Datos de algunas cartas: " + JSON.stringify(dataArray) + "\n";
 };
 export const translateText = async (text: string) => {
   const {
     choices: [{ message }],
   } = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4",
     messages: [
       {
         role: "system",

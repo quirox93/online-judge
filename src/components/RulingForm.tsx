@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import CardSearch from "./CardSearch.js";
 import type { OficialData } from "@/interfaces/interfaces.js";
 import { getCardRulingJp } from "@/utils/scrappers.js";
-
 export default function RulingForm() {
   const [card, setCard] = useState(null as OficialData | null);
   const [rulings, setRulings] = useState([] as any);
+  const [ruleMessage, setRuleMessage] = useState("");
   const cb = (cardData: any) => {
     if (cardData) setCard(cardData);
   };
 
   useEffect(() => {
     const loadRuling = async () => {
+      setRuleMessage("Searching rulings..");
       const ruleData = await getCardRulingJp(card?.card_number);
       setRulings(ruleData);
-
+      setRuleMessage("");
       const responses = await Promise.all(
         ruleData.map((rule) =>
           fetch("/api/gtranslator", {
@@ -57,6 +58,7 @@ export default function RulingForm() {
   const gridStyles = {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(20rem, 1fr))",
+
     /* Otros estilos aquí */
   };
 
@@ -66,10 +68,10 @@ export default function RulingForm() {
       {card && (
         <article
           style={gridStyles}
-          className="w-[100%] gap-4 justify-items-center transition-all"
+          className={`w-[100%] gap-4 justify-items-center`}
         >
           <img className="w-[100%] p-4 max-w-xs  " src={card?.image_url}></img>
-          <div className="flex flex-col gap-8">{rulingsMap}</div>
+          <div className="flex flex-col p-4 gap-8">{ruleMessage || rulingsMap}</div>
         </article>
       )}
     </>

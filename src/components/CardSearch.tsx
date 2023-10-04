@@ -10,6 +10,8 @@ const loadData = async () => {
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=1000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
     "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=2000&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false",
     "https://api.bandai-tcg-plus.com/api/user/card/list?infinite=false&reverse_card=0&playable_regulation%5B%5D=12&default_regulation=12&offset=0&game_title_id=6&limit=1000",
+    "https://api.bandai-tcg-plus.com/api/user/card/list?infinite=false&reverse_card=0&playable_regulation%5B%5D=12&default_regulation=12&offset=2000&game_title_id=6&limit=1000",
+    "https://api.bandai-tcg-plus.com/api/user/card/list?infinite=false&reverse_card=0&playable_regulation%5B%5D=12&default_regulation=12&offset=3000&game_title_id=6&limit=1000",
   ];
 
   // Usamos Promise.all para realizar las tres llamadas en paralelo
@@ -46,22 +48,19 @@ export default function CardSearch({ cb }: any) {
     const cardData = data.find(
       (c) => c.card_name + " " + c.card_number == value
     );
-    cb(cardData);
+    if (cardData) cb(cardData);
   };
   return (
     <div className="w-[100%] flex gap-4 items-center justify-center mb-5 ">
       <div className="flex flex-col w-[70%]">
-        {data.length ? (
-          <Input
-            placeholder="Search a card..."
-            type="text"
-            list="data"
-            onChange={handleInput}
-            value={inputValue}
-          />
-        ) : (
-          <SkeletonSearch />
-        )}
+        <Input
+          placeholder="Search a card..."
+          type="text"
+          list="data"
+          onChange={handleInput}
+          value={inputValue}
+        />
+
         {inputValue.length > 2 && (
           <datalist id="data">
             {data.map((e, i: number) => (

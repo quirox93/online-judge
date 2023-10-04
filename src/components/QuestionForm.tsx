@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import type { Source, Value } from "@/interfaces/interfaces";
+import type { OficialData, Source, Value } from "@/interfaces/interfaces";
 import { Textarea } from "./ui/textarea";
 import React from "react";
 import CardSearch from "./CardSearch";
@@ -12,6 +12,8 @@ export default function QuestionForm() {
     sources: "",
   });
 
+  const [cardRef, setCardRef] = useState([] as OficialData[]);
+
   async function onSubmit(event: any) {
     event.preventDefault();
 
@@ -19,9 +21,18 @@ export default function QuestionForm() {
 
     try {
       setValues({ ...values, answer: "Cargando...", sources: "" });
+
+      const $cardRef = new Set(
+        cardRef.filter((data) => values.question?.includes(data.card_number))
+      );
+
       const response = await fetch("/api/answer", {
         method: "POST",
-        body: JSON.stringify({ question: values.question, token }),
+        body: JSON.stringify({
+          question: values.question,
+          token,
+          cardRef: [...$cardRef],
+        }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -70,12 +81,17 @@ export default function QuestionForm() {
   let disabled = false;
   if (values.answer === "Cargando...") disabled = true;
 
-  const cb = (card: any) => {
-    console.log(card);
+  const cb = (card: OficialData) => {
+    setValues({
+      ...values,
+      question: `${values.question} [${card.card_name} ${card.card_number}]`,
+    });
+    setCardRef([...cardRef, card]);
   };
-  //<CardSearch cb={cb} />
+
   return (
     <>
+      <CardSearch cb={cb} />
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}

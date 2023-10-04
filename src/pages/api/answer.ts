@@ -3,7 +3,8 @@ import { generateResponse } from "./controllers";
 import { getUser, supabase } from "@/auth";
 
 export const POST: APIRoute = async ({ request }) => {
-  const { token, question } = await request.json();
+  const { token, question, cardRef } = await request.json();
+
   if (!token)
     return new Response(JSON.stringify({ error: "You must be logged." }), {
       status: 400,
@@ -22,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   //return new Response(JSON.stringify(test));
 
-  const response = await generateResponse(question);
+  const response = await generateResponse(question, cardRef);
 
   return new Response(JSON.stringify(response));
 };

@@ -1,5 +1,6 @@
 ---
 import { ViewTransitions } from "astro:transitions";
+import { SEO } from "astro-seo";
 import "@/styles/globals.css";
 import LoginStatus from "@/components/LoginStatus.jsx";
 
@@ -20,6 +21,19 @@ const { title, slug } = Astro.props as Props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <SEO
+      title="TCG Virtual Judge"
+      description="App prototype built with Astro and Supabase authentication, deployed to Vercel"
+      extend={{
+        meta: [
+          { name: "twitter:title", content: "TCG Virtual Judge" },
+          {
+            name: "twitter:description",
+            content: "Virtual judge powered by GPT.",
+          },
+        ],
+      }}
+    />
     <ViewTransitions />
   </head>
   <body>
@@ -60,7 +74,11 @@ const { title, slug } = Astro.props as Props;
     </header>
     <slot />
     <footer class="flex items-center justify-center mt-20">
-      <a href="https://cafecito.app/warben" transition:name="cafecito" rel="noopener" target="_blank"
+      <a
+        href="https://cafecito.app/warben"
+        transition:name="cafecito"
+        rel="noopener"
+        target="_blank"
         ><img
           srcset="https://cdn.cafecito.app/imgs/buttons/button_6.png 1x, https://cdn.cafecito.app/imgs/buttons/button_6_2x.png 2x, https://cdn.cafecito.app/imgs/buttons/button_6_3.75x.png 3.75x"
           src="https://cdn.cafecito.app/imgs/buttons/button_6.png"
