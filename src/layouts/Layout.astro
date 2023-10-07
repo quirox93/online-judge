@@ -5,7 +5,7 @@ import "@/styles/globals.css";
 import LoginStatus from "@/components/LoginStatus";
 import { getUser } from "../utils/supabaseServer";
 import { accessTokenName, refreshTokenName } from "../utils/config";
-
+export const prerender = false;
 const accessToken = Astro.cookies.get(accessTokenName)?.value;
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
 
@@ -16,7 +16,7 @@ interface Props {
   title: string;
   slug: string;
 }
-console.log(userData);
+
 const { title, slug } = Astro.props as Props;
 ---
 
