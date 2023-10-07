@@ -18,7 +18,7 @@ export default function LoginStatus({ isLoggedIn }: any) {
     });
   };
   const handleLogOut = async () => {
-    supabase.auth.signOut();
+    await supabase.auth.signOut();
   };
   return (
     <>

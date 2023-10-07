@@ -3,13 +3,15 @@ import { ViewTransitions } from "astro:transitions";
 import { SEO } from "astro-seo";
 import "@/styles/globals.css";
 import LoginStatus from "@/components/LoginStatus";
-import { getUser } from "../utils/supabaseServer";
+import { getUser, supabase } from "../utils/supabaseBrowser";
 import { accessTokenName, refreshTokenName } from "../utils/config";
-export const prerender = false;
+
 const accessToken = Astro.cookies.get(accessTokenName)?.value;
 const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
 
 const userData = await getUser({ accessToken, refreshToken });
+
+console.log(userData);
 const isLoggedIn = !!userData;
 
 interface Props {
@@ -87,6 +89,7 @@ const { title, slug } = Astro.props as Props;
       </nav>
     </header>
     <main class="w-full flex-col flex flex-wrap items-center">
+      {JSON.stringify(userData)}
       <div class="w-full p-5 max-w-3xl flex flex-col gap-5 text-left">
         <slot />
       </div>
@@ -144,7 +147,7 @@ const { title, slug } = Astro.props as Props;
           document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
           document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
           if (isLoggedIn) {
-            //location.reload();
+            location.reload();
             console.log("Reload");
           }
         } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
@@ -156,7 +159,7 @@ const { title, slug } = Astro.props as Props;
             session!.refresh_token
           }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
           if (!isLoggedIn) {
-            //location.reload();
+            location.reload();
             console.log("Reload");
           }
         }
