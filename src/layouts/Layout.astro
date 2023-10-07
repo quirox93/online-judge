@@ -6,13 +6,12 @@ import LoginStatus from "@/components/LoginStatus";
 import { getUser, supabase } from "../utils/supabaseBrowser";
 import { accessTokenName, refreshTokenName } from "../utils/config";
 
-const accessToken = Astro.cookies.get(accessTokenName)?.value;
-const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
+//const accessToken = Astro.cookies.get(accessTokenName)?.value;
+//const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
 
-const userData = await getUser({ accessToken, refreshToken });
+//const userData = await getUser({ accessToken, refreshToken });
 
-console.log(userData);
-const isLoggedIn = !!userData;
+const isLoggedIn = !!false;
 
 interface Props {
   title: string;
@@ -90,11 +89,7 @@ const { title, slug } = Astro.props as Props;
     </header>
     <main class="w-full flex-col flex flex-wrap items-center">
       <div class="w-full p-5 max-w-3xl flex flex-col gap-5 text-left">
-        <p>
-          {userData?.email}<br />
-          {accessTokenName}<br />
-          {accessToken}
-        </p>
+        <p></p>
         <slot />
       </div>
     </main>
@@ -141,10 +136,17 @@ const { title, slug } = Astro.props as Props;
     </style>
     <script>
       import { supabase } from "../utils/supabaseBrowser";
-      import { accessTokenName, refreshTokenName } from "../utils/config";
-      const isLoggedIn = document.body.hasAttribute("data-logged-in");
+      import {
+        accessTokenName,
+        refreshTokenName,
+        localStorageKey,
+      } from "../utils/config";
+      //const isLoggedIn = document.body.hasAttribute("data-logged-in");
 
       supabase.auth.onAuthStateChange((event, session) => {
+        const data = localStorage.getItem(localStorageKey);
+        const isLoggedIn = !!data;
+
         console.log(event, isLoggedIn);
         if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
           const expires = new Date(0).toUTCString();

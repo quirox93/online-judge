@@ -7,7 +7,7 @@ export const getUser = async (arg: {
   refreshToken: string | undefined;
 }) => {
   const { accessToken, refreshToken } = arg;
-
+  
   try {
     if (!accessToken) throw "No accessToken";
     if (!refreshToken) throw "No refreshToken";

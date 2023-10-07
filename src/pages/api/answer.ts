@@ -4,26 +4,30 @@ import { getUser } from "@/utils/supabaseServer";
 import { accessTokenName, refreshTokenName } from "@/utils/config";
 import { parseCookies } from "../../utils/utils";
 export const POST: APIRoute = async ({ request }) => {
-  const { question, cardRef } = await request.json();
-  const cookies = parseCookies(request.headers.get("cookie"));
-  const accessToken = cookies[accessTokenName];
-  const refreshToken = cookies[refreshTokenName];
-  if (!accessToken)
-    return new Response(JSON.stringify({ error: "You must be logged." }), {
-      status: 400,
-    });
+  try {
+    const { question, cardRef } = await request.json();
+    const cookies = parseCookies(request?.headers?.get("cookie"));
+    console.log(cookies);
 
-  const user = await getUser({ accessToken, refreshToken });
-  if (!user)
-    return new Response(JSON.stringify({ error: "You must be logged." }), {
-      status: 400,
-    });
+    if (!cookies)
+      return new Response(JSON.stringify({ error: "You must be logged." }), {
+        status: 400,
+      });
+    const accessToken = cookies[accessTokenName];
+    const refreshToken = cookies[refreshTokenName];
+    const user = await getUser({ accessToken, refreshToken });
+    if (!user)
+      return new Response(JSON.stringify({ error: "You must be logged." }), {
+        status: 400,
+      });
 
-  //return new Response(JSON.stringify(test));
+    //return new Response(JSON.stringify(test));
 
-  const response = await generateResponse(question, cardRef, user?.role);
-
-  return new Response(JSON.stringify(response));
+    const response = await generateResponse(question, cardRef, user?.role);
+    return new Response(JSON.stringify(response));
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 const test = {
   question:

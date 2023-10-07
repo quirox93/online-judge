@@ -12,7 +12,7 @@ export const getUser = async (arg: {
   refreshToken: string | undefined;
 }) => {
   const { accessToken, refreshToken } = arg;
-
+  console.log(supabaseAnonKey);
   try {
     if (!accessToken) throw "No accessToken";
     if (!refreshToken) throw "No refreshToken";
