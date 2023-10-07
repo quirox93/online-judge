@@ -151,8 +151,8 @@ const { title, slug } = Astro.props as Props;
           document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
           document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
           if (isLoggedIn) {
-            location.reload();
-            //console.log("Reload");
+            //location.reload();
+            console.log("Reload");
           }
         } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
           const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
@@ -163,8 +163,8 @@ const { title, slug } = Astro.props as Props;
             session!.refresh_token
           }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
           if (!isLoggedIn) {
-            location.reload();
-            // console.log("Reload");
+            //location.reload();
+            console.log("Reload");
           }
         }
       });
