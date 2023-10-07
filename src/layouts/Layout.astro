@@ -3,15 +3,6 @@ import { ViewTransitions } from "astro:transitions";
 import { SEO } from "astro-seo";
 import "@/styles/globals.css";
 import LoginStatus from "@/components/LoginStatus";
-import { getUser, supabase } from "../utils/supabaseBrowser";
-import { accessTokenName, refreshTokenName } from "../utils/config";
-
-//const accessToken = Astro.cookies.get(accessTokenName)?.value;
-//const refreshToken = Astro.cookies.get(refreshTokenName)?.value;
-
-//const userData = await getUser({ accessToken, refreshToken });
-
-const isLoggedIn = !!false;
 
 interface Props {
   title: string;
@@ -45,7 +36,7 @@ const { title, slug } = Astro.props as Props;
     />
     <ViewTransitions />
   </head>
-  <body data-logged-in={isLoggedIn}>
+  <body>
     <header>
       <nav
         class="relative select-none bg-muted flex justify-center w-full mb-10 border-b-2 border-slate-600 border-t-0"
@@ -77,11 +68,7 @@ const { title, slug } = Astro.props as Props;
 
           <div class="flex items-stretch flex-no-shrink flex-grow">
             <div class="flex items-stretch justify-end ml-auto">
-              <LoginStatus
-                isLoggedIn={isLoggedIn}
-                transition:persist
-                client:load
-              />
+              <LoginStatus transition:persist client:only />
             </div>
           </div>
         </div>
@@ -141,21 +128,14 @@ const { title, slug } = Astro.props as Props;
         refreshTokenName,
         localStorageKey,
       } from "../utils/config";
-      //const isLoggedIn = document.body.hasAttribute("data-logged-in");
-
+      import { isLoggedIn } from "@/store/store.js";
       supabase.auth.onAuthStateChange((event, session) => {
         const data = localStorage.getItem(localStorageKey);
-        const isLoggedIn = !!data;
-
-        console.log(event, isLoggedIn);
+        isLoggedIn.set(!!data);
         if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
           const expires = new Date(0).toUTCString();
           document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
           document.cookie = `${refreshTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
-          if (isLoggedIn) {
-            //location.reload();
-            console.log("Reload");
-          }
         } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
           const maxAge = 100 * 365 * 24 * 60 * 60; // 100 years, never expires
           document.cookie = `${accessTokenName}=${
@@ -164,10 +144,6 @@ const { title, slug } = Astro.props as Props;
           document.cookie = `${refreshTokenName}=${
             session!.refresh_token
           }; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
-          if (!isLoggedIn) {
-            //location.reload();
-            console.log("Reload");
-          }
         }
       });
     </script>

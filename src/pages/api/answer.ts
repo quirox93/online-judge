@@ -7,7 +7,6 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const { question, cardRef } = await request.json();
     const cookies = parseCookies(request?.headers?.get("cookie"));
-    console.log(cookies);
 
     if (!cookies)
       return new Response(JSON.stringify({ error: "You must be logged." }), {
@@ -25,8 +24,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     const response = await generateResponse(question, cardRef, user?.role);
     return new Response(JSON.stringify(response));
-  } catch (error) {
-    console.log(error.message);
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
   }
 };
 const test = {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
-import { allCards } from "@/store/cardsStore.js";
+import { allCards } from "@/store/store.js";
 import { useStore } from "@nanostores/react";
 import { SkeletonSearch } from "./ui/skeletonSearch";
 import type { OficialData } from "@/interfaces/interfaces";

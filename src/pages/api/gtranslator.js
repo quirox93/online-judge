@@ -12,8 +12,6 @@ export const POST = async ({ request }) => {
     to: "en",
   });
   const translation = { question, answer: clean(answer) };
-
-  console.log({ text, translation });
   return new Response(JSON.stringify(translation));
 };
 
