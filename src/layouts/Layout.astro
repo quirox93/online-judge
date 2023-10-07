@@ -16,7 +16,7 @@ interface Props {
   title: string;
   slug: string;
 }
-
+console.log(userData);
 const { title, slug } = Astro.props as Props;
 ---
 
@@ -138,7 +138,7 @@ const { title, slug } = Astro.props as Props;
       const isLoggedIn = document.body.hasAttribute("data-logged-in");
 
       supabase.auth.onAuthStateChange((event, session) => {
-        console.log(event);
+        console.log(event, isLoggedIn);
         if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
           const expires = new Date(0).toUTCString();
           document.cookie = `${accessTokenName}=; path=/; expires=${expires}; SameSite=Lax; secure`;
