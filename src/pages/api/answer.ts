@@ -1,29 +1,27 @@
 import type { APIRoute } from "astro";
-import { generateResponse } from "./controllers";
-import { getUser, supabase } from "@/auth";
-
+import { generateResponse } from "../../utils/controllers";
+import { getUser } from "@/utils/supabaseServer";
+import { accessTokenName, refreshTokenName } from "@/utils/config";
+import { parseCookies } from "../../utils/utils";
 export const POST: APIRoute = async ({ request }) => {
-  const { token, question, cardRef } = await request.json();
-
-  if (!token)
+  const { question, cardRef } = await request.json();
+  const cookies = parseCookies(request.headers.get("cookie"));
+  const accessToken = cookies[accessTokenName];
+  const refreshToken = cookies[refreshTokenName];
+  if (!accessToken)
     return new Response(JSON.stringify({ error: "You must be logged." }), {
       status: 400,
     });
 
-  const { access_token } = JSON.parse(token);
-  const user = await getUser(access_token);
+  const user = await getUser({ accessToken, refreshToken });
   if (!user)
     return new Response(JSON.stringify({ error: "You must be logged." }), {
-      status: 400,
-    });
-  if (user?.role !== "premium")
-    return new Response(JSON.stringify({ error: "Paid me 🐭" }), {
       status: 400,
     });
 
   //return new Response(JSON.stringify(test));
 
-  const response = await generateResponse(question, cardRef);
+  const response = await generateResponse(question, cardRef, user?.role);
 
   return new Response(JSON.stringify(response));
 };

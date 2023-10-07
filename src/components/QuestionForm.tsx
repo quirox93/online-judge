@@ -17,8 +17,6 @@ export default function QuestionForm() {
   async function onSubmit(event: any) {
     event.preventDefault();
 
-    const token = localStorage.getItem("supabase.auth.token");
-
     try {
       setValues({ ...values, answer: "Cargando...", sources: "" });
 
@@ -30,7 +28,6 @@ export default function QuestionForm() {
         method: "POST",
         body: JSON.stringify({
           question: values.question,
-          token,
           cardRef: [...$cardRef],
         }),
       });
@@ -38,31 +35,60 @@ export default function QuestionForm() {
       if (data.error) throw new Error(data.error);
 
       const { answer, sources } = data;
-      const map = sources.map((e: Source) => {
+      const sourcesArr = [] as any;
+      sources.forEach((e: Source) => {
         const similarity = Math.ceil(e.similarity * 100);
-        const lines = e.content
-          .trim()
-          .split("\n")
-          .map((line, i) => {
-            return (
-              <React.Fragment key={i}>
-                {line}
-                <br />
-              </React.Fragment>
-            );
+        const content = `\n- ${e.content} [${similarity}% #${e.id}]`;
+        const finded = sourcesArr.find((s: any) => s.category === e.category);
+        const findedTitle = finded?.content.find(
+          (c: any) => c.title === e.title
+        );
+        if (findedTitle) {
+          findedTitle.content += `\n${content}`;
+        } else if (finded) {
+          finded.content.push({
+            title: e.title,
+            content,
           });
+        } else
+          sourcesArr.push({
+            category: e.category,
+            content: [{ title: e.title, content }],
+            id: e.id,
+            similarity,
+          });
+      });
+
+      const map = sourcesArr.map((e: any) => {
+        const article = e.content.map((c: any, i: number) => {
+          const lines = c.content
+            .trim()
+            .split("\n")
+            .map((line: any, i: number) => {
+              return (
+                <React.Fragment key={i}>
+                  {line.trim()}
+                  <br />
+                </React.Fragment>
+              );
+            });
+          return (
+            <article key={i}>
+              <h2 className="font-bold text-xl text-yellow-300">{c.title}</h2>
+              <p key={i}>{lines}</p>
+              <br></br>
+            </article>
+          );
+        });
         return (
           <section
             className="p-3 bg-secondary rounded-md mb-10 opacity-75 hover:opacity-100"
             key={e.id}
           >
-            <hr />
-            <article>
-              <h2 className=" text-xl ">
-                #{e.id} [similarity: {similarity}%] {e.title}
-              </h2>
-              <p>{lines}</p>
-            </article>
+            <h2 className="text-2xl bg-slate-500 p-2 rounded-md font-bold">
+              {e.category}
+            </h2>
+            {article}
           </section>
         );
       });
