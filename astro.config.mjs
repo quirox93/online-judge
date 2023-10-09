@@ -13,13 +13,9 @@ export default defineConfig({
   ],
   output: "server",
   adapter: vercel(),
-  vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          entryFileNames: "[name]-[hash].js",
-        },
-      },
+  server: {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
     },
   },
 });
