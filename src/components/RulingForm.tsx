@@ -13,11 +13,15 @@ export default function RulingForm() {
   useEffect(() => {
     const loadRuling = async () => {
       setRuleMessage("Searching rulings..");
-      const ruleData = await getCardRulingJp(card?.card_number);
-      setRulings(ruleData);
+      const ruleData = await fetch("/api/ruling", {
+        method: "POST",
+        body: JSON.stringify({ card_number: card?.card_number }),
+      });
+      const rules = await ruleData.json();
+      setRulings(rules);
       setRuleMessage("");
       const responses = await Promise.all(
-        ruleData.map((rule) =>
+        rules.map((rule: any) =>
           fetch("/api/gtranslator", {
             method: "POST",
             body: JSON.stringify({ text: rule }),
