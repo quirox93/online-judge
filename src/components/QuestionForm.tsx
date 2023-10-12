@@ -117,7 +117,7 @@ export default function QuestionForm() {
 
   return (
     <>
-      <CardSearch cb={cb} />
+      {/* <CardSearch cb={cb} /> */}
       <form className="w-[100%] flex items-center flex-col" onSubmit={onSubmit}>
         <Textarea
           onChange={onTextChange}
