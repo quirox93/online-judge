@@ -157,11 +157,11 @@ export const translateText = async (text: string) => {
 	const {
 		choices: [{ message }],
 	} = await openai.chat.completions.create({
-		model: "gpt-4",
+		model: "gpt-3.5-turbo-1106",
 		messages: [
 			{
 				role: "system",
-				content: `Eres un traductor del japones al inglés enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas. Usa otro tipo de comillas para los datos dentro de las propiedades del JSON. Ten en cuenta el siguiente diccionario para traducir: [オープン : Reveal]`,
+				content: `Eres un traductor del japones al inglés enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas.`,
 			},
 			{
 				role: "user",
