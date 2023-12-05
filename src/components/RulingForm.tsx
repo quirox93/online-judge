@@ -33,11 +33,9 @@ export default function RulingForm() {
 			const dataArray = await Promise.all(dataPromises);
 			setRulings(dataArray);
 
-			const token = localStorage.getItem("supabase.auth.token");
-			if (!token) return;
 			const response = await fetch("/api/translator", {
 				method: "POST",
-				body: JSON.stringify({ text: JSON.stringify(ruleData), token }),
+				body: JSON.stringify({ text: JSON.stringify(ruleData) }),
 			});
 			const data = await response.json();
 			//if (data.error) return alert(data.error);
