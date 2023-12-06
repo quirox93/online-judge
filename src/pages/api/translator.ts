@@ -5,25 +5,27 @@ import { parseCookies } from "@/utils/utils";
 import { accessTokenName, refreshTokenName } from "@/utils/config";
 
 export const POST: APIRoute = async ({ request }) => {
-  const { text } = await request.json();
-  const cookies = parseCookies(request.headers.get("cookie"));
-  const accessToken = cookies[accessTokenName];
-  const refreshToken = cookies[refreshTokenName];
-  if (!accessToken)
-    return new Response(JSON.stringify({ error: "You must be logged." }), {
-      status: 400,
-    });
+	const { text } = await request.json();
+	const cookies = parseCookies(request.headers.get("cookie"));
+	const accessToken = cookies[accessTokenName];
+	const refreshToken = cookies[refreshTokenName];
+	if (!accessToken)
+		return new Response(JSON.stringify({ error: "You must be logged." }), {
+			status: 400,
+		});
 
-  const user = await getUser({ accessToken, refreshToken });
-  if (!user)
-    return new Response(JSON.stringify({ error: "You must be logged." }), {
-      status: 400,
-    });
-  if (user?.role !== "premium")
-    return new Response(JSON.stringify({ error: "Paid me 🐭" }), {
-      status: 400,
-    });
-  const translation = (await translateText(text)) as any;
+	const user = await getUser({ accessToken, refreshToken });
+	if (!user)
+		return new Response(JSON.stringify({ error: "You must be logged." }), {
+			status: 400,
+		});
+	if (user?.role !== "premium")
+		return new Response(JSON.stringify({ error: "Paid me 🐭" }), {
+			status: 400,
+		});
 
-  return new Response(JSON.stringify(translation));
+	console.log(text);
+	const translation = (await translateText(text)) as any;
+	console.log(translation);
+	return new Response(JSON.stringify(translation));
 };

@@ -161,7 +161,7 @@ export const translateText = async (text: string) => {
 		messages: [
 			{
 				role: "system",
-				content: `Eres un traductor del japones al inglés enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas.`,
+				content: `Eres un traductor del japones al ingles enfocado en el TCG de Digimon Card Game. Solo tienes que responder con la traduccion del JSON recibido manteniendo el formato JSON, nada mas. Ten en cuenta el siguiente diccionario para traducir en caso de ser necesario: [オープン : Revela]`,
 			},
 			{
 				role: "user",
