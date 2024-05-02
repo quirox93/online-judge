@@ -48,7 +48,7 @@ const { title, slug } = Astro.props as Props;
               class:list={[
                 "flex-no-grow flex-no-shrink relative py-2 px-4 leading-normal text-foreground no-underline flex items-center hover:bg-background",
                 { "bg-background": slug === "home" },
-              ]}>Home</a
+              ]}>Prices</a
             >
             <a
               href="/rulings"
@@ -66,11 +66,7 @@ const { title, slug } = Astro.props as Props;
             >
           </div>
 
-          <div class="flex items-stretch flex-no-shrink flex-grow">
-            <div class="flex items-stretch justify-end ml-auto">
-              <LoginStatus transition:persist client:only />
-            </div>
-          </div>
+        
         </div>
       </nav>
     </header>
