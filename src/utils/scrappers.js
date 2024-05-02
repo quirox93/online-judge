@@ -119,6 +119,7 @@ async function getPhoenix(cardNumber, dolarValue) {
     console.log(data);
     if (!data.length) return [];
     const cardsMap = data.map((cardData) => {
+      if (!cardsData.f_stock) return null;
       return {
         source: "Phoenix Reborn",
         title: cardData.post_data.post_title,
@@ -130,7 +131,7 @@ async function getPhoenix(cardNumber, dolarValue) {
         last_update: cardData.post_data.post_modified,
       };
     });
-    return cardsMap;
+    return cardsMap.filter(Boolean);
   } catch (error) {
     console.error(error);
     return [];
