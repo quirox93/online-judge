@@ -119,7 +119,6 @@ async function getPhoenix(cardNumber, dolarValue) {
     console.log(data);
     if (!data.length) return [];
     const cardsMap = data.map((cardData) => {
-      if (!cardsData.f_stock) return null;
       return {
         source: "Phoenix Reborn",
         title: cardData.post_data.post_title,
@@ -131,7 +130,7 @@ async function getPhoenix(cardNumber, dolarValue) {
         last_update: cardData.post_data.post_modified,
       };
     });
-    return cardsMap.filter(Boolean);
+    return cardsMap;
   } catch (error) {
     console.error(error);
     return [];
@@ -159,7 +158,6 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
     console.log(cardsData);
 
     const cardsMap = cardsData.map((e) => {
-      if (e.offers.availability !== "http://schema.org/InStock") return null;
       return {
         source: "La guarida del elfo",
         title: e.name,
@@ -170,8 +168,7 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
         available: e.offers.availability == "http://schema.org/InStock",
       };
     });
-
-    return cardsMap.filter(Boolean);
+    return cardsMap;
   } catch (error) {
     console.error(error);
     return [];
