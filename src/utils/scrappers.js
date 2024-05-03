@@ -44,7 +44,7 @@ export async function getPriceData(cardNumber) {
         cardNumber
     );
     const { success } = await cardListResponse.json();
-    const cardName = success?.cards[0]?.cardName;
+    const cardName = success?.cards[0]?.card_name;
     const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
     const dolarData = await dolarResponse.json();
     const dolarValue = dolarData.venta;
