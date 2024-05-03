@@ -37,26 +37,32 @@ export async function getCardRulingJp(cardNumber) {
   return qa;
 }
 
+async function fetchDolarValue() {
+  const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
+  const dolarData = await dolarResponse.json();
+  return dolarData.venta;
+}
+
 export async function getPriceData(cardNumber) {
   try {
-    const cardListResponse = await fetch(
-      "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false&card_number=" +
-        cardNumber
-    );
-    const { success } = await cardListResponse.json();
-    const cardName = success?.cards[0]?.card_name;
-    const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
-    const dolarData = await dolarResponse.json();
-    const dolarValue = dolarData.venta;
-    const [tcgPlayer, phoenix, guarida, spaceGaming] = await Promise.all([
-      getTcgPlayer(cardNumber),
-      getPhoenix(cardNumber, dolarValue),
-      getGuaridaDelElfo(cardNumber, dolarValue),
-      getSpaceGaming(cardNumber, cardName, dolarValue),
-    ]);
+    const [tcgPlayer, phoenix, guarida, spaceGaming, dolarBlue] =
+      await Promise.all([
+        getTcgPlayer(cardNumber),
+        getPhoenix(cardNumber),
+        getGuaridaDelElfo(cardNumber),
+        getSpaceGaming(cardNumber),
+        fetchDolarValue(),
+      ]);
 
     const allPrices = [...tcgPlayer, ...phoenix, ...guarida, ...spaceGaming];
-    const sortedPrices = allPrices.sort((a, b) => {
+    const fixedPrices = allPrices.map((e) => {
+      if (e.price_ars) {
+        e.price_usd = parseFloat((e.price_ars / dolarBlue).toFixed(2));
+      }
+      return e;
+    });
+
+    const sortedPrices = fixedPrices.sort((a, b) => {
       const priceA = a.price_usd || a.medianPrice_usd || a.marketPrice_usd;
       const priceB = b.price_usd || b.medianPrice_usd || b.marketPrice_usd;
       return priceA - priceB;
@@ -118,11 +124,9 @@ async function getPhoenix(cardNumber, dolarValue) {
 
     const response = await fetch(url, options);
     const { products } = await response.json();
-    console.log(products);
     const data = products.filter((e) =>
       e.post_data?.post_title.includes(cardNumber)
     );
-    console.log(data);
     if (!data.length) return [];
     const cardsMap = data.map((cardData) => {
       return {
@@ -130,7 +134,6 @@ async function getPhoenix(cardNumber, dolarValue) {
         title: cardData.post_data.post_title,
         url: cardData.link,
         price_ars: Math.floor(cardData.f_price),
-        price_usd: parseFloat((cardData.f_price / dolarValue).toFixed(2)),
         image: cardData.image.replace("-150x150", ""),
         available: cardData.f_stock,
         last_update: cardData.post_data.post_modified,
@@ -161,8 +164,6 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
     const cardsData = scriptData.filter((e) =>
       e.name.includes("(" + cardNumber + ")")
     );
-    console.log(cardsData);
-
     const cardsMap = cardsData.map((e) => {
       return {
         source: "La guarida del elfo",
@@ -170,7 +171,6 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
         image: e.image,
         url: e.offers.url,
         price_ars: Number(e.offers.price),
-        price_usd: e.offers.price / dolarValue,
         available: e.offers.availability == "http://schema.org/InStock",
       };
     });
@@ -180,16 +180,21 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
     return [];
   }
 }
-async function getSpaceGaming(cardNumber, cardName, dolarValue) {
+async function getSpaceGaming(cardNumber, dolarValue) {
   try {
-    console.log(cardName);
+    const cardListResponse = await fetch(
+      "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false&card_number=" +
+        cardNumber
+    );
+    const { success } = await cardListResponse.json();
+    const cardName = success?.cards[0]?.card_name;
+
     const url =
       "https://spacegaminglomas.com/?post_type=product&s=" +
       cardName +
       "+" +
       cardNumber.split("-")[0].replace(/[0-9]/g, "") +
       "&product_cat=digimon";
-    console.log(url);
     const options = { method: "GET" };
 
     const response = await fetch(url, options);
@@ -201,7 +206,6 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
       const summary = $(".entry-summary")?.first();
       let product = products?.first();
       const image = product?.get(0).attribs.src;
-      console.log(image);
       const _url = "";
       const title = summary.find(".product_title").text();
 
@@ -213,8 +217,6 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
           .replace(".", "")
           .replace(",", ".")
       );
-      console.log(price_ars);
-      const price_usd = parseFloat((price_ars / dolarValue).toFixed(2));
       mapped = [
         {
           source: "SpaceGamingLomas",
@@ -222,11 +224,8 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
           url,
           image,
           price_ars,
-          price_usd,
         },
       ];
-
-      console.log(mapped);
     } else {
       products = $(".attachment-woocommerce_thumbnail");
       mapped = products
@@ -245,14 +244,12 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
               .replace(".", "")
               .replace(",", ".")
           );
-          const price_usd = parseFloat((price_ars / dolarValue).toFixed(2));
           return {
             source: "SpaceGamingLomas",
             title,
             url,
             image,
             price_ars,
-            price_usd,
           };
         })
         .get();
@@ -260,7 +257,6 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
     let filtered = mapped.filter((obj) =>
       obj.image.toLowerCase().includes(cardNumber.toLowerCase())
     );
-    console.log(filtered);
     const pageNumbers = $(".page-numbers")
       .map((i, el) => $(el).attr("href"))
       .get();
@@ -274,7 +270,6 @@ async function getSpaceGaming(cardNumber, cardName, dolarValue) {
       );
       filtered = [...filtered, ...newPages.flat()];
     }
-    console.log(filtered);
     return filtered;
   } catch (error) {
     console.error(error);
@@ -307,14 +302,13 @@ async function getSpaceGamingPage(url, cardNumber, cardName, dolarValue) {
             .replace(".", "")
             .replace(",", ".")
         );
-        const price_usd = parseFloat((price_ars / dolarValue).toFixed(2));
+
         return {
           source: "SpaceGamingLomas",
           title,
           url,
           image,
           price_ars,
-          price_usd,
         };
       })
       .get();
@@ -328,3 +322,4 @@ async function getSpaceGamingPage(url, cardNumber, cardName, dolarValue) {
     return [];
   }
 }
+
