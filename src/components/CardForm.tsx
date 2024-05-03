@@ -13,7 +13,7 @@ export default function CardForm() {
   useEffect(() => {
     const loadData = async () => {
       setMessage(<p className="w-[100%] text-center">Buscando precios...</p>);
-      const cardDataFetch = await fetch("/api/data", {
+      const cardDataFetch = await fetch("/api/prices", {
         method: "POST",
         body: JSON.stringify({
           card_number: card?.card_number,
