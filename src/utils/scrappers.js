@@ -37,8 +37,14 @@ export async function getCardRulingJp(cardNumber) {
   return qa;
 }
 
-export async function getPriceData(cardNumber, cardName) {
+export async function getPriceData(cardNumber) {
   try {
+    const cardListResponse = await fetch(
+      "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false&card_number=" +
+        cardNumber
+    );
+    const { success } = await cardListResponse.json();
+    const cardName = success?.cards[0]?.cardName;
     const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
     const dolarData = await dolarResponse.json();
     const dolarValue = dolarData.venta;
@@ -80,7 +86,7 @@ async function getTcgPlayer(cardNumber) {
     const result = results.map((e) => {
       return {
         source: "TCG Player",
-        title: e.productUrlName,
+        title: e.productName,
         url: `https://www.tcgplayer.com/product/${e.productId}`,
         image: `https://product-images.tcgplayer.com/fit-in/437x437/${e.productId}.jpg`,
         marketPrice_usd: e.marketPrice,
