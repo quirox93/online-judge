@@ -187,7 +187,8 @@ async function getSpaceGaming(cardNumber, dolarValue) {
         cardNumber
     );
     const { success } = await cardListResponse.json();
-    const cardName = success?.cards[0]?.card_name;
+    const cardName = success?.cards[0]?.card_name.replace(/[^\w\s]/gi, "");
+    const cleanCardNumber = cardNumber;
 
     const url =
       "https://spacegaminglomas.com/?post_type=product&s=" +
@@ -254,6 +255,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
         })
         .get();
     }
+    console.log(mapped);
     let filtered = mapped.filter((obj) =>
       obj.image.toLowerCase().includes(cardNumber.toLowerCase())
     );
@@ -264,9 +266,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
       const newPages = await Promise.all(
         pageNumbers
           .slice(0, -1)
-          .map((pageNumber) =>
-            getSpaceGamingPage(pageNumber, cardNumber, cardName, dolarValue)
-          )
+          .map((pageNumber) => getSpaceGamingPage(pageNumber, cardNumber))
       );
       filtered = [...filtered, ...newPages.flat()];
     }
@@ -276,7 +276,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
     return [];
   }
 }
-async function getSpaceGamingPage(url, cardNumber, cardName, dolarValue) {
+async function getSpaceGamingPage(url, cardNumber) {
   try {
     const options = { method: "GET" };
 
@@ -322,4 +322,3 @@ async function getSpaceGamingPage(url, cardNumber, cardName, dolarValue) {
     return [];
   }
 }
-
