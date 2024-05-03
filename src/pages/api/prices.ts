@@ -7,6 +7,7 @@ export const POST = async ({ request }: any) => {
   return new Response(JSON.stringify(data), {
     headers: {
       "content-type": "application/json;charset=UTF-8",
+      "Access-Control-Allow-Origin": "*",
     },
   });
 };
