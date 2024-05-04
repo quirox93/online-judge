@@ -95,9 +95,9 @@ async function getTcgPlayer(cardNumber) {
         title: e.productName,
         url: `https://www.tcgplayer.com/product/${e.productId}`,
         image: `https://product-images.tcgplayer.com/fit-in/437x437/${e.productId}.jpg`,
+        available: Boolean(e.listings.length),
         marketPrice_usd: e.marketPrice,
         medianPrice_usd: e.medianPrice,
-        available: Boolean(e.listings.length),
       };
     });
 
@@ -133,10 +133,9 @@ async function getPhoenix(cardNumber, dolarValue) {
         source: "Phoenix Reborn",
         title: cardData.post_data.post_title,
         url: cardData.link,
-        price_ars: Math.floor(cardData.f_price),
-        image: cardData.image.replace("-150x150", ""),
+        image: cardData.image.replace("-150x150", "") || undefined,
         available: cardData.f_stock,
-        last_update: cardData.post_data.post_modified,
+        price_ars: Math.floor(cardData.f_price),
       };
     });
     return cardsMap;
@@ -168,10 +167,10 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
       return {
         source: "La guarida del elfo",
         title: e.name,
-        image: e.image,
+        image: e.image.includes("no-photo") ? undefined : e.image,
         url: e.offers.url,
-        price_ars: Number(e.offers.price),
         available: e.offers.availability == "http://schema.org/InStock",
+        price_ars: Number(e.offers.price),
       };
     });
     return cardsMap;
@@ -209,6 +208,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
       const image = product?.get(0).attribs.src;
       const _url = "";
       const title = summary.find(".product_title").text();
+      const available = !summary.find(".out-of-stock").length;
 
       const price_ars = parseInt(
         summary
@@ -224,6 +224,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
           title,
           url,
           image,
+          available,
           price_ars,
         },
       ];
@@ -234,6 +235,12 @@ async function getSpaceGaming(cardNumber, dolarValue) {
           const title = $(el).parent().parent().text();
           const image = $(el).get(0).attribs.src;
           const url = $(el).parent().parent().get(0).attribs.href;
+          const available = !$(el)
+            .parent()
+            .parent()
+            .parent()
+            .text()
+            .includes("Leer más");
           const price_ars = parseInt(
             $(el)
               .parent()
@@ -250,6 +257,7 @@ async function getSpaceGaming(cardNumber, dolarValue) {
             title,
             url,
             image,
+            available,
             price_ars,
           };
         })
@@ -291,6 +299,12 @@ async function getSpaceGamingPage(url, cardNumber) {
         const title = $(el).parent().parent().text();
         const image = $(el).get(0).attribs.src;
         const url = $(el).parent().parent().get(0).attribs.href;
+        const available = !$(el)
+          .parent()
+          .parent()
+          .parent()
+          .text()
+          .includes("Leer más");
         const price_ars = parseInt(
           $(el)
             .parent()
@@ -308,6 +322,7 @@ async function getSpaceGamingPage(url, cardNumber) {
           title,
           url,
           image,
+          available,
           price_ars,
         };
       })

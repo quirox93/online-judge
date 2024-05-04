@@ -31,12 +31,14 @@ export default function CardForm() {
     data.map((cardData: any, index: any) => (
       <article
         key={index}
-        className={`w-[100%] gap-4 justify-items-center items-center flex ${"flex-col lg:flex-row md:flex-row sm:flex-row"}`}
+        className={`w-[100%] p-2 gap-4 justify-items-center items-center flex ${"flex-col lg:flex-row md:flex-row sm:flex-row"}`}
       >
         <a href={cardData?.url} target="_blank" rel="noreferrer">
           <img
-            className="w-[100%] p-4 max-w-xs  "
-            src={cardData?.image}
+            className={`w-[250px] p-2 max-w-xs ${
+              cardData?.available === false ? "border-2 border-red-500" : ""
+            }`}
+            src={cardData?.image || "/assets/digimon_cardback.webp"}
             alt={cardData?.title}
           ></img>
         </a>
