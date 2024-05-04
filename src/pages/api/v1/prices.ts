@@ -13,3 +13,17 @@ export const POST = async ({ request }: any) => {
     },
   });
 };
+export const GET = async ({ url }: any) => {
+  const queryParams = new URLSearchParams(url.search);
+  const card_number = queryParams.get("card_number");
+  const start = Date.now();
+  const data = await getPriceData(card_number);
+  const end = Date.now();
+  console.log(`La llamada tomó ${Math.floor((end - start) / 1000)} segundos`);
+  return new Response(JSON.stringify(data), {
+    headers: {
+      "content-type": "application/json;charset=UTF-8",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+};
