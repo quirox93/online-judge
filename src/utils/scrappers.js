@@ -62,9 +62,11 @@ export async function getPriceData(cardNumber) {
       return e;
     });
     const sortedPrices = fixedPrices.sort((a, b) => {
-      const priceA = a.price_usd?.medianPrice || a.price_usd;
-      const priceB = b.price_usd?.medianPrice || b.price_usd;
-      return priceA - priceB;
+      const priceA = a.price_usd?.medianPrice || a.price_usd || Infinity;
+      const priceB = b.price_usd?.medianPrice || b.price_usd || Infinity;
+      return (
+        (priceA === 0 ? Infinity : priceA) - (priceB === 0 ? Infinity : priceB)
+      );
     });
     return sortedPrices;
   } catch (error) {
