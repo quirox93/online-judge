@@ -190,7 +190,7 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
     return [];
   }
 }
-async function getSpaceGaming(cardNumber, dolarValue) {
+async function getSpaceGaming(cardNumber) {
   try {
     const cardListResponse = await fetch(
       "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false&card_number=" +
@@ -198,7 +198,6 @@ async function getSpaceGaming(cardNumber, dolarValue) {
     );
     const { success } = await cardListResponse.json();
     const cardName = success?.cards[0]?.card_name.replace(/[^\w\s]/gi, "");
-    const cleanCardNumber = cardNumber;
 
     const url =
       "https://spacegaminglomas.com/?post_type=product&s=" +
@@ -212,84 +211,24 @@ async function getSpaceGaming(cardNumber, dolarValue) {
     const html = await response.text();
     const $ = cheerio.load(html);
     let products = $(".wp-post-image");
-    let mapped = [];
-    if (products.length) {
-      const summary = $(".entry-summary")?.first();
-      let product = products?.first();
-      const image = product?.get(0).attribs.src;
-      const _url = "";
-      const title = summary.find(".product_title").text();
-      const available = !summary.find(".out-of-stock").length;
+    if (products.length)
+      return getSpaceGamingSingleData($, products, cardNumber);
 
-      const price_ars = parseInt(
-        summary
-          .find(".woocommerce-Price-amount")
-          .text()
-          .substring(2)
-          .replace(".", "")
-          .replace(",", ".")
-      );
-      mapped = [
-        {
-          source: "SpaceGamingLomas",
-          title,
-          url,
-          image,
-          available,
-          price_ars,
-        },
-      ];
-    } else {
-      products = $(".attachment-woocommerce_thumbnail");
-      mapped = products
-        .map((i, el) => {
-          const title = $(el).parent().parent().text();
-          const image = $(el).get(0).attribs.src;
-          const url = $(el).parent().parent().get(0).attribs.href;
-          const available = !$(el)
-            .parent()
-            .parent()
-            .parent()
-            .text()
-            .includes("Leer más");
-          const price_ars = parseInt(
-            $(el)
-              .parent()
-              .parent()
-              .parent()
-              .find(".price")
-              .text()
-              .substring(2)
-              .replace(".", "")
-              .replace(",", ".")
-          );
-          return {
-            source: "SpaceGamingLomas",
-            title,
-            url,
-            image,
-            available,
-            price_ars,
-          };
-        })
-        .get();
-    }
-    console.log(mapped);
-    let filtered = mapped.filter((obj) =>
-      obj.image.toLowerCase().includes(cardNumber.toLowerCase())
-    );
+    let mapped = getSpaceGamingData($, cardNumber);
     const pageNumbers = $(".page-numbers")
       .map((i, el) => $(el).attr("href"))
       .get();
+    console.log(pageNumbers);
     if (pageNumbers.length) {
       const newPages = await Promise.all(
         pageNumbers
           .slice(0, -1)
           .map((pageNumber) => getSpaceGamingPage(pageNumber, cardNumber))
       );
-      filtered = [...filtered, ...newPages.flat()];
+      console.log(newPages);
+      return [...mapped, ...newPages.flat()];
     }
-    return filtered;
+    return mapped;
   } catch (error) {
     console.error(error);
     return [];
@@ -302,9 +241,16 @@ async function getSpaceGamingPage(url, cardNumber) {
     const response = await fetch(url, options);
     const html = await response.text();
     const $ = cheerio.load(html);
-    let products = $(".wp-post-image");
+    return getSpaceGamingData($, cardNumber);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+function getSpaceGamingData($, cardNumber) {
+  try {
     let mapped = [];
-    products = $(".attachment-woocommerce_thumbnail");
+    let products = $(".attachment-woocommerce_thumbnail");
     mapped = products
       .map((i, el) => {
         const title = $(el).parent().parent().text();
@@ -343,6 +289,40 @@ async function getSpaceGamingPage(url, cardNumber) {
       obj.image.toLowerCase().includes(cardNumber.toLowerCase())
     );
     return filtered;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+function getSpaceGamingSingleData($, products, cardNumber) {
+  try {
+    const summary = $(".entry-summary")?.first();
+    let product = products?.first();
+    const image = product?.get(0).attribs.src;
+    const post_id = summary.find(".current-product-id").val();
+    const title = summary.find(".product_title").text();
+    const available = !summary.find(".out-of-stock").length;
+
+    const price_ars = parseInt(
+      summary
+        .find(".woocommerce-Price-amount")
+        .text()
+        .substring(2)
+        .replace(".", "")
+        .replace(",", ".")
+    );
+    return [
+      {
+        source: "SpaceGamingLomas",
+        title,
+        url: "https://spacegaminglomas.com/?p=" + post_id,
+        image,
+        available,
+        price_ars,
+      },
+    ].filter((obj) =>
+      obj.image.toLowerCase().includes(cardNumber.toLowerCase())
+    );
   } catch (error) {
     console.error(error);
     return [];
