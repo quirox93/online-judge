@@ -61,10 +61,9 @@ export async function getPriceData(cardNumber) {
       }
       return e;
     });
-
     const sortedPrices = fixedPrices.sort((a, b) => {
-      const priceA = a.price_usd || a.medianPrice_usd || a.marketPrice_usd;
-      const priceB = b.price_usd || b.medianPrice_usd || b.marketPrice_usd;
+      const priceA = a.price_usd?.medianPrice || a.price_usd;
+      const priceB = b.price_usd?.medianPrice || b.price_usd;
       return priceA - priceB;
     });
     return sortedPrices;
@@ -89,18 +88,30 @@ async function getTcgPlayer(cardNumber) {
     const response = await fetch(url, options);
     const data = await response.json();
     const { results } = data.results[0];
-    const result = results.map((e) => {
+
+    const resultPromises = results.map(async (e) => {
+      const priceResponse = await fetch(
+        `https://mpapi.tcgplayer.com/v2/product/${e.productId}/pricepoints`
+      );
+      const priceData = await priceResponse.json();
+      const prices = priceData.filter(
+        (p) => p.marketPrice || p.listedMedianPrice
+      );
+      const price_usd = {
+        marketPrice: prices[0].marketPrice,
+        medianPrice: prices[0].listedMedianPrice,
+      };
       return {
         source: "TCG Player",
         title: e.productName,
         url: `https://www.tcgplayer.com/product/${e.productId}`,
         image: `https://product-images.tcgplayer.com/fit-in/437x437/${e.productId}.jpg`,
         available: Boolean(e.listings.length),
-        marketPrice_usd: e.marketPrice,
-        medianPrice_usd: e.medianPrice,
+        price_usd,
       };
     });
 
+    const result = await Promise.all(resultPromises);
     return result;
   } catch (error) {
     console.error(error);
