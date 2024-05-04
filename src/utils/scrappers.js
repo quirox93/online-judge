@@ -62,8 +62,8 @@ export async function getPriceData(cardNumber) {
       return e;
     });
     const sortedPrices = fixedPrices.sort((a, b) => {
-      const priceA = a.price_usd?.medianPrice || a.price_usd || Infinity;
-      const priceB = b.price_usd?.medianPrice || b.price_usd || Infinity;
+      const priceA = a.price_usd?.median_price || a.price_usd || Infinity;
+      const priceB = b.price_usd?.median_price || b.price_usd || Infinity;
       return (
         (priceA === 0 ? Infinity : priceA) - (priceB === 0 ? Infinity : priceB)
       );
@@ -100,8 +100,8 @@ async function getTcgPlayer(cardNumber) {
         (p) => p.marketPrice || p.listedMedianPrice
       );
       const price_usd = {
-        marketPrice: prices[0].marketPrice,
-        medianPrice: prices[0].listedMedianPrice,
+        market_price: prices[0].marketPrice,
+        median_price: prices[0].listedMedianPrice,
       };
       return {
         source: "TCG Player",
