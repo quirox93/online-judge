@@ -15,7 +15,7 @@ export const POST = async ({ request }: any) => {
 };
 export const GET = async ({ url }: any) => {
   const queryParams = new URLSearchParams(url.search);
-  const card_number = queryParams.get("card_number");
+  const card_number = queryParams.get("card_number")?.toUpperCase();
   const start = Date.now();
   const data = await getPriceData(card_number);
   const end = Date.now();
