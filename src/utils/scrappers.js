@@ -123,8 +123,7 @@ async function getTcgPlayer(cardNumber) {
 async function getPhoenix(cardNumber, dolarValue) {
   try {
     // OBTENGO PRECIOS DESDE API DE PHOENIX
-    const url =
-      "https://phoenixreborn.com.ar/?wc-ajax=aws_action&https=%2F%2Fphoenixreborn.com.ar%2F%3Fwc-ajax";
+    const url = "https://phoenixreborn.com.ar/wp-admin/admin-ajax.php";
     const form = new FormData();
     form.append("action", "aws_action");
     form.append("keyword", cardNumber);
@@ -144,9 +143,9 @@ async function getPhoenix(cardNumber, dolarValue) {
     const cardsMap = data.map((cardData) => {
       return {
         source: "Phoenix Reborn",
-        title: cardData.post_data.post_title,
-        url: cardData.link,
-        image: cardData.image.replace("-150x150", "") || undefined,
+        title: cardData.title,
+        url: "https://phoenixreborn.com.ar/?p=" + cardData.post_data.ID,
+        image: cardData.image?.replace("-150x150", "") || undefined,
         available: cardData.f_stock,
         price_ars: Math.floor(cardData.f_price),
       };
