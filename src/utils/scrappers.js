@@ -214,7 +214,7 @@ async function getSpaceGaming(cardNumber) {
     const $ = cheerio.load(html);
     let products = $(".wp-post-image");
     if (products.length)
-      return getSpaceGamingSingleData($, products, cardNumber);
+      return getSpaceGamingSingleData(url, $, products, cardNumber);
 
     let mapped = getSpaceGamingData($, cardNumber);
     const pageNumbers = $(".page-numbers")
@@ -296,7 +296,7 @@ function getSpaceGamingData($, cardNumber) {
     return [];
   }
 }
-function getSpaceGamingSingleData($, products, cardNumber) {
+function getSpaceGamingSingleData(_url, $, products, cardNumber) {
   try {
     const summary = $(".entry-summary")?.first();
     let product = products?.first();
@@ -317,7 +317,7 @@ function getSpaceGamingSingleData($, products, cardNumber) {
       {
         source: "SpaceGamingLomas",
         title,
-        url: "https://spacegaminglomas.com/?p=" + post_id,
+        url: _url,
         image,
         available,
         price_ars,
