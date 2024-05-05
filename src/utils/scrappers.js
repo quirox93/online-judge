@@ -214,7 +214,7 @@ async function getSpaceGaming(cardNumber) {
     const $ = cheerio.load(html);
     let products = $(".wp-post-image");
     if (products.length)
-      return getSpaceGamingSingleData(url, $, products, cardNumber);
+      return getSpaceGamingSingleData($, products, cardNumber);
 
     let mapped = getSpaceGamingData($, cardNumber);
     const pageNumbers = $(".page-numbers")
@@ -257,7 +257,14 @@ function getSpaceGamingData($, cardNumber) {
       .map((i, el) => {
         const title = $(el).parent().parent().text();
         const image = $(el).get(0).attribs.src;
-        const url = $(el).parent().parent().get(0).attribs.href;
+        const url =
+          "https://spacegaminglomas.com/?p=" +
+          $(el)
+            .parent()
+            .parent()
+            .parent()
+            .find(".product_type_simple")
+            .attr("data-product_id");
         const available = !$(el)
           .parent()
           .parent()
@@ -296,14 +303,14 @@ function getSpaceGamingData($, cardNumber) {
     return [];
   }
 }
-function getSpaceGamingSingleData(_url, $, products, cardNumber) {
+function getSpaceGamingSingleData($, products, cardNumber) {
   try {
     const summary = $(".entry-summary")?.first();
     let product = products?.first();
     const image = product?.get(0).attribs.src;
-    const post_id = summary.find(".current-product-id").val();
     const title = summary.find(".product_title").text();
     const available = !summary.find(".out-of-stock").length;
+    const url = $('link[rel="shortlink"]').attr("href");
 
     const price_ars = parseInt(
       summary
@@ -317,7 +324,7 @@ function getSpaceGamingSingleData(_url, $, products, cardNumber) {
       {
         source: "SpaceGamingLomas",
         title,
-        url: _url,
+        url,
         image,
         available,
         price_ars,
