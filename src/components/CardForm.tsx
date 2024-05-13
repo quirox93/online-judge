@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { navigate } from "astro:transitions/client";
+//import { navigate } from "astro:transitions/client";
 import CardSearch from "./CardSearchEn.js";
 export default function CardForm({ cardNumber }: { cardNumber: string }) {
   const startedCard = cardNumber ? { card_number: cardNumber } : null;
@@ -12,7 +12,7 @@ export default function CardForm({ cardNumber }: { cardNumber: string }) {
   const cb = (cardData: any) => {
     if (cardData) setCard(cardData);
 
-    navigate(`/?card_number=${cardData.card_number}`);
+    // navigate(`/?card_number=${cardData.card_number}`);
   };
   const loadData = async () => {
     setMessage(

@@ -9,5 +9,5 @@ let cardNumber = Astro.url.searchParams.get('card_number') || '';
 ---
 
 <Layout title="Prices" slug="home">
-  <CardForm cardNumber={cardNumber} client:only />
+  <CardForm cardNumber={cardNumber} client:load />
 </Layout>
