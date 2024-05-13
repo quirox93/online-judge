@@ -1,26 +1,27 @@
 import { getPriceData } from "@/utils/scrappers.js";
 
-export const POST = async ({ request }: any) => {
-  const { card_number } = await request.json();
-  const start = Date.now();
-  const data = await getPriceData(card_number);
-  const end = Date.now();
-  console.log(`La llamada tomó ${Math.floor((end - start) / 1000)} segundos`);
-  return new Response(JSON.stringify(data), {
-    headers: {
-      "content-type": "application/json;charset=UTF-8",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
-};
 export const GET = async ({ url }: any) => {
+  const start = new Date().getTime();
   const queryParams = new URLSearchParams(url.search);
-  const card_number = queryParams.get("card_number")?.toUpperCase();
-  const start = Date.now();
-  const data = await getPriceData(card_number);
-  const end = Date.now();
-  console.log(`La llamada tomó ${Math.floor((end - start) / 1000)} segundos`);
-  return new Response(JSON.stringify(data), {
+  const card_number = queryParams.get("card_number");
+  const webs = "dolarBlue,tcgPlayer,phoenix,guarida,spaceGaming";
+  if (!webs || !card_number) {
+    return new Response(
+      JSON.stringify({ message: "Error en los parametros." }),
+      {
+        headers: {
+          "content-type": "application/json;charset=UTF-8",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
+  }
+  const websFilter = webs.split(",");
+  const prices = await getPriceData(card_number, websFilter);
+  console.log(prices);
+  const end = new Date().getTime();
+  const durationMs = end - start;
+  return new Response(JSON.stringify({ prices, durationMs }), {
     headers: {
       "content-type": "application/json;charset=UTF-8",
       "Access-Control-Allow-Origin": "*",

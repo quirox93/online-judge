@@ -36,57 +36,47 @@ export async function getCardRulingJp(cardNumber) {
   });
   return qa;
 }
-
-async function fetchDolarValue() {
-  const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
-  const dolarData = await dolarResponse.json();
-  return dolarData.venta;
-}
-
-export async function getPriceData(cardNumber) {
+const WEBS = {
+  tcgPlayer: getTcgPlayer,
+  phoenix: getPhoenix,
+  guarida: getGuaridaDelElfo,
+  spaceGaming: getSpaceGaming,
+  dolarBlue: fetchDolarValue,
+};
+export async function getPriceData(cardNumber, filters) {
   try {
-    const [tcgPlayer, phoenix, guarida, spaceGaming, dolarBlue] =
-      await Promise.all([
-        getTcgPlayer(cardNumber),
-        getPhoenix(cardNumber),
-        getGuaridaDelElfo(cardNumber),
-        getSpaceGaming(cardNumber),
-        fetchDolarValue(),
-      ]);
+    const promises = filters.map((e) => WEBS[e](cardNumber)); // Corregir el uso de map
+    const allPrices = await Promise.all(promises);
 
-    const allPrices = [...tcgPlayer, ...phoenix, ...guarida, ...spaceGaming];
-    const fixedPrices = allPrices.map((e) => {
-      if (e.price_ars) {
-        e.price_usd = parseFloat((e.price_ars / dolarBlue).toFixed(2));
-      }
-      return e;
-    });
-    const sortedPrices = fixedPrices.sort((a, b) => {
-      const priceA = a.price_usd?.median_price || a.price_usd || Infinity;
-      const priceB = b.price_usd?.median_price || b.price_usd || Infinity;
-      return (
-        (priceA === 0 ? Infinity : priceA) - (priceB === 0 ? Infinity : priceB)
-      );
-    });
-    return sortedPrices;
+    return allPrices;
   } catch (error) {
     console.error(error);
-    return [];
+    return { error: error.message }; // Devolver un array vacío en caso de error
   }
 }
+async function fetchDolarValue() {
+  const start = new Date().getTime();
+  const dolarResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
+  const dolarData = await dolarResponse.json();
+  const end = new Date().getTime();
+  const durationMs = end - start;
+  return { blueVenta: dolarData.venta, durationMs };
+}
 async function getTcgPlayer(cardNumber) {
-  const url =
-    "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false&mpfev=2372";
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: `{"algorithm":"sales_synonym_v2","from":0,"size":24,"filters":{"term":{"productLineName":["digimon-card-game"],"productTypeName":["Cards"],"number":["${cardNumber} C","${cardNumber} U","${cardNumber} R","${cardNumber} SR","${cardNumber} SEC","${cardNumber} P"]}}}`,
-  };
-
   try {
+    cardNumber = cardNumber.toUpperCase();
+    const start = new Date().getTime();
+    const url =
+      "https://mp-search-api.tcgplayer.com/v1/search/request?q=&isList=false&mpfev=2372";
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: `{"algorithm":"sales_synonym_v2","from":0,"size":24,"filters":{"term":{"productLineName":["digimon-card-game"],"productTypeName":["Cards"],"number":["${cardNumber} C","${cardNumber} U","${cardNumber} R","${cardNumber} SR","${cardNumber} SEC","${cardNumber} P"]}}}`,
+    };
+
     const response = await fetch(url, options);
     const data = await response.json();
     const { results } = data.results[0];
@@ -113,15 +103,20 @@ async function getTcgPlayer(cardNumber) {
       };
     });
 
-    const result = await Promise.all(resultPromises);
-    return result;
+    const cards = await Promise.all(resultPromises);
+    const end = new Date().getTime();
+    const durationMs = end - start;
+    return { source: "TCG Player", cards, durationMs };
   } catch (error) {
     console.error(error);
-    return [];
+    return { source: "TCG Player", error };
   }
 }
-async function getPhoenix(cardNumber, dolarValue) {
+async function getPhoenix(cardNumber) {
   try {
+    cardNumber = cardNumber.toUpperCase();
+    const start = new Date().getTime();
+
     // OBTENGO PRECIOS DESDE API DE PHOENIX
     const url = "https://phoenixreborn.com.ar/wp-admin/admin-ajax.php";
     const form = new FormData();
@@ -140,9 +135,8 @@ async function getPhoenix(cardNumber, dolarValue) {
       e.post_data?.post_title.includes(cardNumber)
     );
     if (!data.length) return [];
-    const cardsMap = data.map((cardData) => {
+    const cards = data.map((cardData) => {
       return {
-        source: "Phoenix Reborn",
         title: cardData.title,
         url: "https://phoenixreborn.com.ar/?p=" + cardData.post_data.ID,
         image: cardData.image?.replace("-150x150", "") || undefined,
@@ -150,14 +144,19 @@ async function getPhoenix(cardNumber, dolarValue) {
         price_ars: Math.floor(cardData.f_price),
       };
     });
-    return cardsMap;
+    const end = new Date().getTime();
+    const durationMs = end - start;
+
+    return { source: "Phoenix Reborn", cards, durationMs };
   } catch (error) {
     console.error(error);
     return [];
   }
 }
-async function getGuaridaDelElfo(cardNumber, dolarValue) {
+async function getGuaridaDelElfo(cardNumber) {
   try {
+    cardNumber = cardNumber.toUpperCase();
+    const start = new Date().getTime();
     const url =
       "https://www.laguaridadelelfo.com.ar/search/?q=" +
       cardNumber +
@@ -175,9 +174,8 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
     const cardsData = scriptData.filter((e) =>
       e.name.includes("(" + cardNumber + ")")
     );
-    const cardsMap = cardsData.map((e) => {
+    const cards = cardsData.map((e) => {
       return {
-        source: "La guarida del elfo",
         title: e.name,
         image: e.image.includes("no-photo") ? undefined : e.image,
         url: e.offers.url,
@@ -185,14 +183,18 @@ async function getGuaridaDelElfo(cardNumber, dolarValue) {
         price_ars: Number(e.offers.price),
       };
     });
-    return cardsMap;
+
+    const end = new Date().getTime();
+    const durationMs = end - start;
+    return { source: "La guarida del elfo", cards, durationMs };
   } catch (error) {
     console.error(error);
-    return [];
+    return [{ source: "La guarida del elfo", error }];
   }
 }
 async function getSpaceGaming(cardNumber) {
   try {
+    const start = new Date().getTime();
     const cardListResponse = await fetch(
       "https://api.bandai-tcg-plus.com/api/user/card/list?game_title_id=2&limit=1000&offset=0&default_regulation=4&playable_regulation[]=4&reverse_card=0&infinite=false&card_number=" +
         cardNumber
@@ -212,27 +214,30 @@ async function getSpaceGaming(cardNumber) {
     const html = await response.text();
     const $ = cheerio.load(html);
     let products = $(".wp-post-image");
-    if (products.length)
-      return getSpaceGamingSingleData($, products, cardNumber);
-
-    let mapped = getSpaceGamingData($, cardNumber);
-    const pageNumbers = $(".page-numbers")
-      .map((i, el) => $(el).attr("href"))
-      .get();
-    console.log(pageNumbers);
-    if (pageNumbers.length) {
-      const newPages = await Promise.all(
-        pageNumbers
-          .slice(0, -1)
-          .map((pageNumber) => getSpaceGamingPage(pageNumber, cardNumber))
-      );
-      console.log(newPages);
-      return [...mapped, ...newPages.flat()];
+    let cards = [];
+    if (products.length) {
+      cards = getSpaceGamingSingleData($, products, cardNumber);
+    } else {
+      cards = getSpaceGamingData($, cardNumber);
+      const pageNumbers = $(".page-numbers")
+        .map((i, el) => $(el).attr("href"))
+        .get();
+      if (pageNumbers.length) {
+        const newPages = await Promise.all(
+          pageNumbers
+            .slice(0, -1)
+            .map((pageNumber) => getSpaceGamingPage(pageNumber, cardNumber))
+        );
+        console.log(newPages);
+        cards = [...cards, ...newPages.flat()];
+      }
     }
-    return mapped;
+    const end = new Date().getTime();
+    const durationMs = end - start;
+    return { source: "SpaceGamingLomas", cards, durationMs };
   } catch (error) {
     console.error(error);
-    return [];
+    return { source: "SpaceGamingLomas", error };
   }
 }
 async function getSpaceGamingPage(url, cardNumber) {
@@ -283,7 +288,6 @@ function getSpaceGamingData($, cardNumber) {
         );
 
         return {
-          source: "SpaceGamingLomas",
           title,
           url,
           image,
@@ -319,9 +323,8 @@ function getSpaceGamingSingleData($, products, cardNumber) {
         .replace(".", "")
         .replace(",", ".")
     );
-    return [
+    const cards = [
       {
-        source: "SpaceGamingLomas",
         title,
         url,
         image,
@@ -331,6 +334,7 @@ function getSpaceGamingSingleData($, products, cardNumber) {
     ].filter((obj) =>
       obj.image.toLowerCase().includes(cardNumber.toLowerCase())
     );
+    return cards;
   } catch (error) {
     console.error(error);
     return [];
