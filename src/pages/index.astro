@@ -1,7 +1,7 @@
 ---
 import CardForm from "@/components/CardForm";
 import Layout from "@/layouts/Layout.astro";
-export const prerender = true;
+export const prerender = false;
 
 let cardNumber = Astro.url.searchParams.get('card_number') || '';
 
