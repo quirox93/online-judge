@@ -13,7 +13,7 @@ export default function CardForm({ cardNumber }: { cardNumber: string }) {
     if (cardData) setCard(cardData);
 
     // navigate(`/?card_number=${cardData.card_number}`);
-    window.location.href = `/?card_number=${cardData.card_number}`;
+    window.history.pushState({}, "", `/?card_number=${cardData.card_number}`);
   };
   const loadData = async () => {
     setMessage(
